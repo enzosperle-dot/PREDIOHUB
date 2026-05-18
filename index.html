@@ -18,9 +18,19 @@
   --bg:#F1EFE8;--card:#fff;--border:rgba(0,0,0,0.12);--text:#2C2C2A;--muted:#5F5E5A;--hint:#888780;
   --radius-sm:8px;--radius-md:12px;--radius-lg:16px;
 }
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:20px 0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#E8E6DF;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:20px 0;}
+/* Desktop: centralizar e dar sombra elegante */
+@media(min-width:600px){
+  body{background:linear-gradient(135deg,#E8E6DF 0%,#D8D5CC 100%);align-items:center;padding:40px 0;min-height:100vh;}
+  .phone{box-shadow:0 32px 80px rgba(0,0,0,0.22),0 0 0 1px rgba(255,255,255,0.5);}
+}
+/* Mobile: phone ocupa tela toda */
+@media(max-width:390px){
+  body{padding:0;background:var(--bg);}
+  .phone{width:100%;min-height:100vh;border-radius:0;border:none;box-shadow:none;}
+}
 .phone{width:375px;min-height:720px;background:var(--bg);border-radius:40px;border:1.5px solid var(--border);overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.15);position:relative;}
-.status-bar{background:var(--teal-600);padding:12px 20px 8px;display:flex;justify-content:space-between;align-items:center;color:#fff;font-size:11px;font-weight:500;}
+
 .screen{display:none;flex-direction:column;flex:1;min-height:0;}
 .screen.active{display:flex;}
 .perm-toggle{display:flex;align-items:center;gap:8px;background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;cursor:pointer;font-size:13px;color:var(--text);transition:all 0.15s;}
@@ -163,11 +173,6 @@ textarea{resize:none;height:80px;}
 <h2 class="sr-only">PredioHub — Aplicativo de gestão condominial</h2>
 
 <div class="phone" id="app">
-  <div class="status-bar">
-    <span>9:41</span>
-    <span><i class="ti ti-wifi" style="font-size:13px"></i> <i class="ti ti-battery-2" style="font-size:13px"></i></span>
-  </div>
-
   <!-- ===== LOGIN ===== -->
   <div id="screen-login" class="screen active">
     <div class="login-wrap">
@@ -310,10 +315,26 @@ textarea{resize:none;height:80px;}
         </div>
       </div>
       <p class="section-title">Últimos avisos</p>
+      <div id="home-avisos-lista">
       <div style="display:flex;flex-direction:column;align-items:center;padding:28px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
         <i class="ti ti-news" style="font-size:32px;color:var(--hint);margin-bottom:10px;"></i>
         <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhum aviso por enquanto</p>
         <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:4px;">Quando a administração publicar um aviso, ele aparecerá aqui.</p>
+      </div>
+      </div>
+
+      <!-- Instagram -->
+      <div id="home-instagram-wrap" style="display:none;margin-top:14px;">
+        <a id="home-instagram-link" href="#" target="_blank" style="display:flex;align-items:center;gap:12px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);padding:14px;text-decoration:none;">
+          <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="ti ti-brand-instagram" style="color:#fff;font-size:22px;"></i>
+          </div>
+          <div>
+            <p style="font-size:14px;font-weight:600;color:var(--text);">Siga no Instagram</p>
+            <p id="home-instagram-handle" style="font-size:12px;color:var(--muted);">@condominio</p>
+          </div>
+          <i class="ti ti-external-link" style="color:var(--hint);font-size:16px;margin-left:auto;"></i>
+        </a>
       </div>
     </div>
     <div class="bottom-nav" id="bottom-nav-home">
@@ -379,24 +400,42 @@ textarea{resize:none;height:80px;}
     </div>
     <div class="content">
       <p class="section-title">Escolha a área</p>
-      <div class="area-option selected" id="area-salao" onclick="selectArea('salao')">
-        <div class="qc-icon" style="background:var(--teal-50);font-size:18px;"><i class="ti ti-building-community" style="color:var(--teal-600);"></i></div>
-        <div><h4 style="font-size:13px;font-weight:600;color:var(--text);">Salão de festas</h4><p class="text-small">Até 80 pessoas · 10h–22h</p></div>
-      </div>
-      <div class="area-option" id="area-churras" onclick="selectArea('churras')">
-        <div class="qc-icon" style="background:var(--coral-50);font-size:18px;"><i class="ti ti-flame" style="color:var(--coral-600);"></i></div>
-        <div><h4 style="font-size:13px;font-weight:600;color:var(--text);">Churrasqueira</h4><p class="text-small">Até 30 pessoas · 12h–22h</p></div>
-      </div>
-      <div class="area-option" id="area-piscina" onclick="selectArea('piscina')">
-        <div class="qc-icon" style="background:var(--blue-50);font-size:18px;"><i class="ti ti-ripple" style="color:var(--blue-600);"></i></div>
-        <div><h4 style="font-size:13px;font-weight:600;color:var(--text);">Área da piscina</h4><p class="text-small">Até 20 pessoas · 9h–20h</p></div>
-      </div>
-      <div class="area-option" id="area-jogos" onclick="selectArea('jogos')">
-        <div class="qc-icon" style="background:var(--amber-50);font-size:18px;"><i class="ti ti-device-gamepad-2" style="color:var(--amber-600);"></i></div>
-        <div><h4 style="font-size:13px;font-weight:600;color:var(--text);">Salão de jogos</h4><p class="text-small">Até 15 pessoas · 8h–22h</p></div>
-      </div>
 
-      <p class="section-title" style="margin-top:16px;">Data — maio 2025</p>
+      <!-- Cards visuais com foto -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+        <div id="area-salao" onclick="selectArea('salao')" style="border-radius:var(--radius-md);overflow:hidden;cursor:pointer;border:2.5px solid var(--teal-600);position:relative;">
+          <img src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=300&q=70&fit=crop" style="width:100%;height:90px;object-fit:cover;display:block;">
+          <div style="padding:8px 10px;background:var(--card);">
+            <p style="font-size:12px;font-weight:700;color:var(--text);">🎉 Salão de festas</p>
+            <p style="font-size:10px;color:var(--muted);">80 pessoas · 10h–22h</p>
+          </div>
+          <div id="area-salao-check" style="position:absolute;top:6px;right:6px;background:var(--teal-600);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;"><i class="ti ti-check" style="color:#fff;font-size:12px;"></i></div>
+        </div>
+        <div id="area-churras" onclick="selectArea('churras')" style="border-radius:var(--radius-md);overflow:hidden;cursor:pointer;border:2px solid var(--border);position:relative;">
+          <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&q=70&fit=crop" style="width:100%;height:90px;object-fit:cover;display:block;">
+          <div style="padding:8px 10px;background:var(--card);">
+            <p style="font-size:12px;font-weight:700;color:var(--text);">🔥 Churrasqueira</p>
+            <p style="font-size:10px;color:var(--muted);">30 pessoas · 12h–22h</p>
+          </div>
+          <div id="area-churras-check" style="display:none;position:absolute;top:6px;right:6px;background:var(--teal-600);border-radius:50%;width:20px;height:20px;align-items:center;justify-content:center;"><i class="ti ti-check" style="color:#fff;font-size:12px;"></i></div>
+        </div>
+        <div id="area-piscina" onclick="selectArea('piscina')" style="border-radius:var(--radius-md);overflow:hidden;cursor:pointer;border:2px solid var(--border);position:relative;">
+          <img src="https://images.unsplash.com/photo-1572331165267-854da2b10ccc?w=300&q=70&fit=crop" style="width:100%;height:90px;object-fit:cover;display:block;">
+          <div style="padding:8px 10px;background:var(--card);">
+            <p style="font-size:12px;font-weight:700;color:var(--text);">🏊 Piscina</p>
+            <p style="font-size:10px;color:var(--muted);">20 pessoas · 9h–20h</p>
+          </div>
+          <div id="area-piscina-check" style="display:none;position:absolute;top:6px;right:6px;background:var(--teal-600);border-radius:50%;width:20px;height:20px;align-items:center;justify-content:center;"><i class="ti ti-check" style="color:#fff;font-size:12px;"></i></div>
+        </div>
+        <div id="area-jogos" onclick="selectArea('jogos')" style="border-radius:var(--radius-md);overflow:hidden;cursor:pointer;border:2px solid var(--border);position:relative;">
+          <img src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=300&q=70&fit=crop" style="width:100%;height:90px;object-fit:cover;display:block;">
+          <div style="padding:8px 10px;background:var(--card);">
+            <p style="font-size:12px;font-weight:700;color:var(--text);">🎮 Salão de jogos</p>
+            <p style="font-size:10px;color:var(--muted);">15 pessoas · 8h–22h</p>
+          </div>
+          <div id="area-jogos-check" style="display:none;position:absolute;top:6px;right:6px;background:var(--teal-600);border-radius:50%;width:20px;height:20px;align-items:center;justify-content:center;"><i class="ti ti-check" style="color:#fff;font-size:12px;"></i></div>
+        </div>
+      </div>
       <div class="card" style="padding:12px;">
         <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;">
           <span class="day-label">D</span><span class="day-label">S</span><span class="day-label">T</span><span class="day-label">Q</span><span class="day-label">Q</span><span class="day-label">S</span><span class="day-label">S</span>
@@ -1072,6 +1111,74 @@ textarea{resize:none;height:80px;}
         </div>
       </div>
 
+      <!-- INSTAGRAM -->
+      <p class="section-title">Redes sociais</p>
+      <div class="card" style="margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);display:flex;align-items:center;justify-content:center;">
+            <i class="ti ti-brand-instagram" style="color:#fff;font-size:20px;"></i>
+          </div>
+          <div><p style="font-size:14px;font-weight:600;color:var(--text);">Instagram</p><p style="font-size:11px;color:var(--hint);">Link visível para moradores</p></div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="config-instagram" placeholder="https://instagram.com/seucondominio" style="flex:1;margin-bottom:0;">
+          <button class="btn btn-primary" style="width:auto;padding:10px 14px;" onclick="salvarInstagram()"><i class="ti ti-check" style="font-size:15px;"></i></button>
+        </div>
+      </div>
+
+      <!-- MODO MANUTENÇÃO -->
+      <p class="section-title">Modo manutenção</p>
+      <div class="card" style="margin-bottom:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div>
+            <p style="font-size:14px;font-weight:600;color:var(--text);">🚧 Manutenção do sistema</p>
+            <p style="font-size:12px;color:var(--muted);margin-top:2px;">Moradores verão aviso e serão desconectados</p>
+          </div>
+          <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;">
+            <input type="checkbox" id="toggle-manutencao" onchange="toggleManutencao(this)" style="opacity:0;width:0;height:0;position:absolute;">
+            <span id="toggle-manutencao-track" style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--gray-100);border-radius:24px;transition:0.3s;">
+              <span id="toggle-manutencao-thumb" style="position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:0.3s;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></span>
+            </span>
+          </label>
+        </div>
+        <div id="manutencao-msg-wrap" style="display:none;">
+          <label class="form-label">Mensagem para os moradores</label>
+          <textarea id="config-manut-msg" placeholder="Ex: Sistema em manutenção. Voltamos em breve!" style="height:60px;"></textarea>
+          <button class="btn btn-primary" style="margin-top:8px;" onclick="salvarMsgManutencao()">Salvar mensagem</button>
+        </div>
+        <div id="manutencao-ativa-info" style="display:none;background:var(--amber-50);border-radius:var(--radius-sm);padding:10px;margin-top:8px;">
+          <p style="font-size:12px;color:var(--amber-800);font-weight:600;">⚠️ Modo manutenção ativo — moradores estão sem acesso</p>
+        </div>
+      </div>
+
+      <!-- BLOCOS E MORADORES -->
+      <p class="section-title">Configuração do condomínio</p>
+      <div class="card" style="margin-bottom:10px;">
+        <div class="form-group">
+          <label class="form-label">Formato dos blocos</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;">
+            <label id="fmt-letra-card" style="display:flex;align-items:center;gap:8px;padding:10px;border:2px solid var(--teal-600);border-radius:var(--radius-sm);cursor:pointer;background:var(--teal-50);">
+              <input type="radio" name="fmt-bloco" value="letra" checked style="accent-color:var(--teal-600);width:auto;"> 
+              <span style="font-size:13px;font-weight:600;">A, B, C... (letras)</span>
+            </label>
+            <label id="fmt-num-card" style="display:flex;align-items:center;gap:8px;padding:10px;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;">
+              <input type="radio" name="fmt-bloco" value="numero" style="accent-color:var(--teal-600);width:auto;"> 
+              <span style="font-size:13px;font-weight:600;">1, 2, 3... (números)</span>
+            </label>
+          </div>
+          <button class="btn btn-primary" style="margin-top:8px;" onclick="salvarFormatoBloco()">Salvar formato</button>
+        </div>
+        <hr class="divider">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Limite de moradores por apartamento</label>
+          <div style="display:flex;gap:8px;">
+            <input type="number" id="config-limite-apto" value="4" min="1" max="20" style="flex:1;margin-bottom:0;">
+            <button class="btn btn-primary" style="width:auto;padding:10px 14px;" onclick="salvarLimiteApto()"><i class="ti ti-check" style="font-size:15px;"></i></button>
+          </div>
+          <p style="font-size:11px;color:var(--hint);margin-top:4px;">Máximo de pessoas cadastradas por unidade</p>
+        </div>
+      </div>
+
       <!-- ADMINISTRADORES -->
       <p class="section-title">Administradores</p>
       <div id="admins-list">
@@ -1280,6 +1387,18 @@ textarea{resize:none;height:80px;}
         <i class="ti ti-calendar-off" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
         <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhuma reunião agendada</p>
         <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:4px;">Agende uma assembleia usando o botão acima.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MANUTENÇÃO ===== -->
+  <div id="screen-manutencao" class="screen" style="flex-direction:column;">
+    <div class="login-wrap" style="justify-content:center;">
+      <div style="font-size:64px;margin-bottom:20px;">🚧</div>
+      <h2 style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:10px;text-align:center;">Sistema em manutenção</h2>
+      <p id="manut-msg-texto" style="font-size:14px;color:var(--muted);text-align:center;line-height:1.7;margin-bottom:24px;">Estamos realizando melhorias no sistema. Voltamos em breve!</p>
+      <div style="background:var(--amber-50);border-radius:var(--radius-md);padding:14px 18px;width:100%;text-align:center;">
+        <p style="font-size:12px;color:var(--amber-800);">Em caso de urgência, entre em contato com a administração do condomínio.</p>
       </div>
     </div>
   </div>
@@ -1606,9 +1725,9 @@ function updateHomeUI() {
   if (perfAptoD) perfAptoD.textContent = `Ap. ${u.apartamento} · Bloco ${u.bloco}`;
   const confirmM = document.getElementById('confirm-morador');
   if (confirmM) confirmM.textContent = `${u.nome} · Ap ${u.apartamento}`;
-  // Carregar nome, cor e logo do condomínio
+  // Carregar nome, cor, logo e configs do condomínio
   if (STATE.condominioId) {
-    sb.from('condominios').select('nome,cor_tema,limite_veiculos,logo_base64').eq('id', STATE.condominioId).single().then(({data}) => {
+    sb.from('condominios').select('nome,cor_tema,limite_veiculos,logo_base64,instagram_url,modo_manutencao,manutencao_msg,formato_bloco,limite_moradores_apto').eq('id', STATE.condominioId).single().then(({data}) => {
       if (data) {
         if (data.nome) {
           syncNomeUI(data.nome);
@@ -1617,9 +1736,7 @@ function updateHomeUI() {
           if (cfgNome) cfgNome.value = data.nome;
           try { localStorage.setItem('prediohub_nome_condo', data.nome); } catch(e) {}
         }
-        if (data.cor_tema) {
-          applyTheme(data.cor_tema);
-        }
+        if (data.cor_tema) applyTheme(data.cor_tema);
         if (data.logo_base64) {
           applyLogo(data.logo_base64);
           try { localStorage.setItem('prediohub_logo', data.logo_base64); } catch(e) {}
@@ -1627,6 +1744,16 @@ function updateHomeUI() {
         STATE.limiteVeiculos = data.limite_veiculos || 5;
         const lv = document.getElementById('veiculo-limite');
         if (lv) lv.textContent = STATE.limiteVeiculos + ' veículos';
+        // Verificar modo manutenção — desconectar moradores
+        if (data.modo_manutencao && !STATE.isAdmin) {
+          const msg = data.manutencao_msg || 'Sistema em manutenção. Voltamos em breve!';
+          const el = document.getElementById('manut-msg-texto');
+          if (el) el.textContent = msg;
+          showScreen('manutencao');
+          return;
+        }
+        // Aplicar configs extras
+        aplicarConfiguracoesCondo(data);
       }
     });
   }
@@ -2284,9 +2411,17 @@ async function salvarLimite() {
 
 // ===== RESERVAS =====
 function selectArea(area) {
-  document.querySelectorAll('.area-option').forEach(o=>o.classList.remove('selected'));
-  const map={salao:'area-salao',churras:'area-churras',piscina:'area-piscina',jogos:'area-jogos'};
-  if (map[area]) document.getElementById(map[area]).classList.add('selected');
+  const areas = ['salao','churras','piscina','jogos'];
+  areas.forEach(a => {
+    const el = document.getElementById('area-' + a);
+    const chk = document.getElementById('area-' + a + '-check');
+    if (el) { el.style.border = '2px solid var(--border)'; }
+    if (chk) chk.style.display = 'none';
+  });
+  const sel = document.getElementById('area-' + area);
+  const selChk = document.getElementById('area-' + area + '-check');
+  if (sel) sel.style.border = '2.5px solid var(--teal-600)';
+  if (selChk) { selChk.style.display = 'flex'; }
 }
 
 function selectTime(btn) {
@@ -2589,6 +2724,103 @@ function applyTheme(hex, light, dark) {
     if (savedNome) syncNomeUI(savedNome);
   } catch(e) { try { applyLogo(PREDIOHUB_LOGO); } catch(e2) {} }
 })();
+
+// ===== INSTAGRAM =====
+async function salvarInstagram() {
+  const url = document.getElementById('config-instagram').value.trim();
+  if (!STATE.condominioId) return;
+  await sb.from('condominios').update({ instagram_url: url }).eq('id', STATE.condominioId);
+  try { localStorage.setItem('prediohub_instagram', url); } catch(e) {}
+  aplicarInstagram(url);
+  toast('✅ Instagram atualizado!');
+}
+
+function aplicarInstagram(url) {
+  const wrap = document.getElementById('home-instagram-wrap');
+  const link = document.getElementById('home-instagram-link');
+  const handle = document.getElementById('home-instagram-handle');
+  if (!url || !wrap) return;
+  wrap.style.display = 'block';
+  if (link) link.href = url;
+  if (handle) {
+    const match = url.match(/instagram\.com\/([^/?]+)/);
+    handle.textContent = match ? '@' + match[1] : url;
+  }
+  const inp = document.getElementById('config-instagram');
+  if (inp) inp.value = url;
+}
+
+// ===== MODO MANUTENÇÃO =====
+async function toggleManutencao(cb) {
+  const ativo = cb.checked;
+  const track = document.getElementById('toggle-manutencao-track');
+  const thumb = document.getElementById('toggle-manutencao-thumb');
+  const msgWrap = document.getElementById('manutencao-msg-wrap');
+  const infoWrap = document.getElementById('manutencao-ativa-info');
+  if (track) track.style.background = ativo ? 'var(--red-600)' : 'var(--gray-100)';
+  if (thumb) thumb.style.transform = ativo ? 'translateX(20px)' : 'translateX(0)';
+  if (msgWrap) msgWrap.style.display = ativo ? 'block' : 'none';
+  if (infoWrap) infoWrap.style.display = ativo ? 'block' : 'none';
+  if (!STATE.condominioId) return;
+  await sb.from('condominios').update({ modo_manutencao: ativo }).eq('id', STATE.condominioId);
+  try { localStorage.setItem('prediohub_manutencao', ativo ? '1' : '0'); } catch(e) {}
+  toast(ativo ? '🚧 Modo manutenção ativado' : '✅ Sistema disponível novamente');
+}
+
+async function salvarMsgManutencao() {
+  const msg = document.getElementById('config-manut-msg').value.trim();
+  if (!msg) { toast('Digite a mensagem'); return; }
+  await sb.from('condominios').update({ manutencao_msg: msg }).eq('id', STATE.condominioId);
+  toast('✅ Mensagem salva!');
+}
+
+// ===== FORMATO BLOCO =====
+async function salvarFormatoBloco() {
+  const fmt = document.querySelector('input[name="fmt-bloco"]:checked')?.value || 'letra';
+  if (!STATE.condominioId) return;
+  await sb.from('condominios').update({ formato_bloco: fmt }).eq('id', STATE.condominioId);
+  toast('✅ Formato de blocos salvo!');
+}
+
+// ===== LIMITE MORADORES APTO =====
+async function salvarLimiteApto() {
+  const val = parseInt(document.getElementById('config-limite-apto').value) || 4;
+  if (!STATE.condominioId) return;
+  await sb.from('condominios').update({ limite_moradores_apto: val }).eq('id', STATE.condominioId);
+  toast('✅ Limite de ' + val + ' moradores/apartamento salvo!');
+}
+
+function aplicarConfiguracoesCondo(data) {
+  if (!data) return;
+  if (data.instagram_url) aplicarInstagram(data.instagram_url);
+  if (data.formato_bloco) {
+    document.querySelectorAll('input[name="fmt-bloco"]').forEach(r => { r.checked = r.value === data.formato_bloco; });
+    const letraCard = document.getElementById('fmt-letra-card');
+    const numCard = document.getElementById('fmt-num-card');
+    if (letraCard) letraCard.style.border = data.formato_bloco === 'letra' ? '2px solid var(--teal-600)' : '2px solid var(--border)';
+    if (numCard) numCard.style.border = data.formato_bloco === 'numero' ? '2px solid var(--teal-600)' : '2px solid var(--border)';
+  }
+  if (data.limite_moradores_apto) {
+    const el = document.getElementById('config-limite-apto');
+    if (el) el.value = data.limite_moradores_apto;
+  }
+  const cb = document.getElementById('toggle-manutencao');
+  const track = document.getElementById('toggle-manutencao-track');
+  const thumb = document.getElementById('toggle-manutencao-thumb');
+  if (data.modo_manutencao) {
+    if (cb) cb.checked = true;
+    if (track) track.style.background = 'var(--red-600)';
+    if (thumb) thumb.style.transform = 'translateX(20px)';
+    const msgWrap = document.getElementById('manutencao-msg-wrap');
+    const infoWrap = document.getElementById('manutencao-ativa-info');
+    if (msgWrap) msgWrap.style.display = 'block';
+    if (infoWrap) infoWrap.style.display = 'block';
+  }
+  if (data.manutencao_msg) {
+    const el = document.getElementById('config-manut-msg');
+    if (el) el.value = data.manutencao_msg;
+  }
+}
 
 function lightenHex(hex) {
   const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
