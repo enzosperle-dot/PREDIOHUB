@@ -118,6 +118,12 @@ textarea{resize:none;height:80px;}
 .success-icon{width:72px;height:72px;border-radius:50%;background:var(--teal-50);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 18px;}
 /* MEETING */
 .meeting-card{background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);padding:14px;margin-bottom:10px;}
+
+.password-wrap{position:relative;}
+.password-wrap input{padding-right:42px;}
+.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--hint);padding:4px;display:flex;align-items:center;}
+.eye-btn:hover{color:var(--text);}
+
 /* MULTAS */
 .multa-card{background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);padding:14px;margin-bottom:10px;}
 /* VEICULOS */
@@ -186,11 +192,19 @@ textarea{resize:none;height:80px;}
         </div>
         <div class="form-group">
           <label class="form-label">Senha</label>
-          <input type="password" id="login-senha" placeholder="••••••••">
+          <div class="password-wrap">
+            <input type="password" id="login-senha" placeholder="••••••••">
+            <button class="eye-btn" type="button" onclick="toggleEye('login-senha',this)" aria-label="Mostrar senha"><i class="ti ti-eye"></i></button>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer;">
+            <input type="checkbox" id="lembrar-me" style="width:auto;margin:0;accent-color:var(--teal-600);"> Lembrar de mim
+          </label>
+          <button onclick="showScreen('esqueci-senha')" style="background:none;border:none;color:var(--teal-600);font-size:13px;cursor:pointer;padding:0;">Esqueci a senha</button>
         </div>
         <button id="btn-login" class="btn btn-primary" onclick="doLogin()" style="margin-bottom:12px;">Entrar</button>
         <button class="btn btn-ghost" style="width:100%;justify-content:center;" onclick="showScreen('cadastro')">Criar conta</button>
-        <p style="text-align:center;font-size:11px;color:var(--hint);margin-top:12px;">Admin: admin@condo.com / admin123</p>
       </div>
     </div>
   </div>
@@ -213,7 +227,10 @@ textarea{resize:none;height:80px;}
         </div>
         <div class="form-group">
           <label class="form-label">Senha</label>
-          <input type="password" id="cad-senha" placeholder="Mínimo 6 caracteres">
+          <div class="password-wrap">
+            <input type="password" id="cad-senha" placeholder="Mínimo 6 caracteres">
+            <button class="eye-btn" type="button" onclick="toggleEye('cad-senha',this)" aria-label="Mostrar senha"><i class="ti ti-eye"></i></button>
+          </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <div class="form-group">
@@ -294,7 +311,7 @@ textarea{resize:none;height:80px;}
         </div>
         <div class="quick-card" onclick="showScreen('multas')">
           <div class="qc-icon" style="background:var(--red-50);"><i class="ti ti-receipt" style="color:var(--red-600);"></i></div>
-          <div class="qc-label">Multas</div>
+          <div class="qc-label">Pagamentos</div>
           <div class="qc-sub" id="home-multas-sub">Ver minhas multas</div>
         </div>
         <div class="quick-card" onclick="showScreen('veiculos')">
@@ -312,6 +329,11 @@ textarea{resize:none;height:80px;}
           <div class="qc-label">Encomendas</div>
           <div class="qc-sub" id="home-enc-sub">Nenhuma pendente</div>
           <span id="home-enc-badge" style="display:none;position:absolute;top:10px;right:10px;background:var(--coral-600);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;"></span>
+        </div>
+        <div class="quick-card" onclick="showScreen('achados')">
+          <div class="qc-icon" style="background:var(--blue-50);"><i class="ti ti-search" style="color:var(--blue-600);"></i></div>
+          <div class="qc-label">Achados</div>
+          <div class="qc-sub">Itens perdidos</div>
         </div>
       </div>
       <p class="section-title">Últimos avisos</p>
@@ -388,7 +410,20 @@ textarea{resize:none;height:80px;}
         </div>
       </div>
       <button class="btn btn-primary" onclick="salvarPerfil()">Salvar alterações</button>
-      <button class="btn btn-danger" style="width:100%;justify-content:center;margin-top:10px;" onclick="doLogout()">Sair da conta</button>
+
+      <!-- 2FA -->
+      <p class="section-title" style="margin-top:16px;">Segurança</p>
+      <div class="card" style="margin-bottom:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <p style="font-size:14px;font-weight:600;color:var(--text);">🔐 Autenticação em 2 fatores</p>
+            <p id="2fa-status-txt" style="font-size:12px;color:var(--muted);margin-top:2px;">Protege sua conta com um código extra</p>
+          </div>
+          <button id="btn-2fa-toggle" class="btn btn-secondary" style="padding:7px 12px;font-size:12px;" onclick="iniciar2FA()">Ativar</button>
+        </div>
+      </div>
+
+      <button class="btn btn-danger" style="width:100%;justify-content:center;margin-top:4px;" onclick="doLogout()">Sair da conta</button>
     </div>
   </div>
 
@@ -637,7 +672,7 @@ textarea{resize:none;height:80px;}
   <div id="screen-multas" class="screen" style="flex-direction:column;">
     <div class="detail-header">
       <button class="back-btn" onclick="goHome()"><i class="ti ti-arrow-left"></i></button>
-      <h2>Minhas multas</h2>
+      <h2>Pagamentos</h2>
     </div>
     <div class="content">
       <div class="tab-row">
@@ -649,8 +684,8 @@ textarea{resize:none;height:80px;}
       <div id="multas-list">
         <div id="multas-empty" style="display:flex;flex-direction:column;align-items:center;padding:36px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
           <i class="ti ti-receipt-off" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
-          <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhuma multa registrada</p>
-          <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:4px;">Você não possui multas no momento.</p>
+          <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhum pagamento registrado</p>
+          <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:4px;">Sem pagamentos no momento.</p>
         </div>
       </div>
     </div>
@@ -748,7 +783,7 @@ textarea{resize:none;height:80px;}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
         <div class="admin-stat"><div class="num">0</div><div class="lbl">Moradores</div></div>
         <div class="admin-stat"><div class="num">0</div><div class="lbl">Chamados abertos</div></div>
-        <div class="admin-stat"><div class="num" style="color:var(--red-600);">0</div><div class="lbl">Multas pendentes</div></div>
+        <div class="admin-stat"><div class="num" style="color:var(--red-600);">0</div><div class="lbl">Pag. pendentes</div></div>
         <div class="admin-stat"><div class="num" id="admin-stat-encomendas" style="color:var(--amber-600);">0</div><div class="lbl">Encomendas</div></div>
       </div>
       <p class="section-title">Administração</p>
@@ -760,7 +795,7 @@ textarea{resize:none;height:80px;}
         </div>
         <div class="quick-card" onclick="showScreen('admin-multas')">
           <div class="qc-icon" style="background:var(--red-50);"><i class="ti ti-receipt" style="color:var(--red-600);"></i></div>
-          <div class="qc-label">Multas</div>
+          <div class="qc-label">Pagamentos</div>
           <div class="qc-sub">Aplicar e gerenciar</div>
         </div>
         <div class="quick-card" onclick="showScreen('admin-veiculos')">
@@ -793,12 +828,17 @@ textarea{resize:none;height:80px;}
           <div class="qc-label">Encomendas</div>
           <div class="qc-sub">Registrar e dar baixa</div>
         </div>
+        <div class="quick-card" onclick="showScreen('admin-achados')">
+          <div class="qc-icon" style="background:var(--blue-50);"><i class="ti ti-search" style="color:var(--blue-600);"></i></div>
+          <div class="qc-label">Achados</div>
+          <div class="qc-sub">Itens perdidos</div>
+        </div>
       </div>
     </div>
     <div class="bottom-nav">
       <button class="nav-item active" onclick="showScreen('admin-home')"><i class="ti ti-layout-dashboard"></i><span>Painel</span></button>
       <button class="nav-item" onclick="showScreen('admin-moradores')"><i class="ti ti-users"></i><span>Moradores</span></button>
-      <button class="nav-item" onclick="showScreen('admin-multas')"><i class="ti ti-receipt"></i><span>Multas</span></button>
+      <button class="nav-item" onclick="showScreen('admin-multas')"><i class="ti ti-receipt"></i><span>Pagamentos</span></button>
       <button class="nav-item" onclick="showScreen('admin-veiculos')"><i class="ti ti-car"></i><span>Veículos</span></button>
       <button class="nav-item" onclick="showScreen('admin-config')"><i class="ti ti-settings"></i><span>Config.</span></button>
     </div>
@@ -837,7 +877,7 @@ textarea{resize:none;height:80px;}
     <div class="bottom-nav">
       <button class="nav-item" onclick="showScreen('admin-home')"><i class="ti ti-layout-dashboard"></i><span>Painel</span></button>
       <button class="nav-item active" onclick="showScreen('admin-moradores')"><i class="ti ti-users"></i><span>Moradores</span></button>
-      <button class="nav-item" onclick="showScreen('admin-multas')"><i class="ti ti-receipt"></i><span>Multas</span></button>
+      <button class="nav-item" onclick="showScreen('admin-multas')"><i class="ti ti-receipt"></i><span>Pagamentos</span></button>
       <button class="nav-item" onclick="showScreen('admin-veiculos')"><i class="ti ti-car"></i><span>Veículos</span></button>
       <button class="nav-item" onclick="showScreen('admin-config')"><i class="ti ti-settings"></i><span>Config.</span></button>
     </div>
@@ -937,10 +977,10 @@ textarea{resize:none;height:80px;}
   <div id="screen-admin-multas" class="screen" style="flex-direction:column;">
     <div class="detail-header">
       <button class="back-btn" onclick="showScreen('admin-home')"><i class="ti ti-arrow-left"></i></button>
-      <h2>Gestão de multas</h2>
+      <h2>Pagamentos</h2>
     </div>
     <div class="content">
-      <button class="dashed-btn" onclick="showScreen('admin-nova-multa')"><i class="ti ti-plus" style="font-size:18px;"></i>Aplicar nova multa</button>
+      <button class="dashed-btn" onclick="showScreen('admin-nova-multa')"><i class="ti ti-plus" style="font-size:18px;"></i>Novo pagamento</button>
       <div class="tab-row">
         <button class="tab-btn active" onclick="filterAdminMultas(this,'all')">Todas</button>
         <button class="tab-btn" onclick="filterAdminMultas(this,'pendente')">Pendentes</button>
@@ -950,15 +990,15 @@ textarea{resize:none;height:80px;}
       <div id="admin-multas-list">
         <div style="display:flex;flex-direction:column;align-items:center;padding:36px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
           <i class="ti ti-receipt-off" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
-          <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhuma multa registrada</p>
-          <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:4px;">Aplique uma multa usando o botão acima.</p>
+          <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhum pagamento registrado</p>
+          <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:4px;">Use o botão acima para registrar pagamentos.</p>
         </div>
       </div>
     </div>
     <div class="bottom-nav">
       <button class="nav-item" onclick="showScreen('admin-home')"><i class="ti ti-layout-dashboard"></i><span>Painel</span></button>
       <button class="nav-item" onclick="showScreen('admin-moradores')"><i class="ti ti-users"></i><span>Moradores</span></button>
-      <button class="nav-item active" onclick="showScreen('admin-multas')"><i class="ti ti-receipt"></i><span>Multas</span></button>
+      <button class="nav-item active" onclick="showScreen('admin-multas')"><i class="ti ti-receipt"></i><span>Pagamentos</span></button>
       <button class="nav-item" onclick="showScreen('admin-veiculos')"><i class="ti ti-car"></i><span>Veículos</span></button>
       <button class="nav-item" onclick="showScreen('admin-config')"><i class="ti ti-settings"></i><span>Config.</span></button>
     </div>
@@ -968,7 +1008,7 @@ textarea{resize:none;height:80px;}
   <div id="screen-admin-nova-multa" class="screen" style="flex-direction:column;">
     <div class="detail-header">
       <button class="back-btn" onclick="showScreen('admin-multas')"><i class="ti ti-arrow-left"></i></button>
-      <h2>Aplicar multa</h2>
+      <h2>Registrar pagamento</h2>
     </div>
     <div class="content">
       <div class="card">
@@ -1010,7 +1050,7 @@ textarea{resize:none;height:80px;}
           </div>
         </div>
       </div>
-      <button class="btn btn-primary" onclick="salvarMulta()">Aplicar multa</button>
+      <button class="btn btn-primary" onclick="salvarMulta()">Registrar pagamento</button>
     </div>
   </div>
 
@@ -1041,7 +1081,7 @@ textarea{resize:none;height:80px;}
     <div class="bottom-nav">
       <button class="nav-item" onclick="showScreen('admin-home')"><i class="ti ti-layout-dashboard"></i><span>Painel</span></button>
       <button class="nav-item" onclick="showScreen('admin-moradores')"><i class="ti ti-users"></i><span>Moradores</span></button>
-      <button class="nav-item" onclick="showScreen('admin-multas')"><i class="ti ti-receipt"></i><span>Multas</span></button>
+      <button class="nav-item" onclick="showScreen('admin-multas')"><i class="ti ti-receipt"></i><span>Pagamentos</span></button>
       <button class="nav-item active" onclick="showScreen('admin-veiculos')"><i class="ti ti-car"></i><span>Veículos</span></button>
       <button class="nav-item" onclick="showScreen('admin-config')"><i class="ti ti-settings"></i><span>Config.</span></button>
     </div>
@@ -1182,52 +1222,9 @@ textarea{resize:none;height:80px;}
       <!-- ADMINISTRADORES -->
       <p class="section-title">Administradores</p>
       <div id="admins-list">
-        <div class="card" style="margin-bottom:10px;">
-          <div class="row-between">
-            <div class="row">
-              <div style="width:36px;height:36px;border-radius:50%;background:var(--teal-600);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:13px;">AD</div>
-              <div>
-                <p style="font-size:14px;font-weight:600;color:var(--text);">Administrador Principal</p>
-                <p class="text-small">admin@condo.com</p>
-              </div>
-            </div>
-            <span class="badge" style="background:var(--teal-50);color:var(--teal-800);">Super Admin</span>
-          </div>
-          <hr class="divider">
-          <p class="form-label" style="margin-bottom:8px;">Permissões</p>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" checked disabled style="width:auto;margin:0;"> Moradores</label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" checked disabled style="width:auto;margin:0;"> Multas</label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" checked disabled style="width:auto;margin:0;"> Veículos</label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" checked disabled style="width:auto;margin:0;"> Regras</label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" checked disabled style="width:auto;margin:0;"> Avisos</label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" checked disabled style="width:auto;margin:0;"> Configurações</label>
-          </div>
-        </div>
-        <div class="card" style="margin-bottom:10px;" id="admin-gestor-card">
-          <div class="row-between">
-            <div class="row">
-              <div style="width:36px;height:36px;border-radius:50%;background:var(--blue-50);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--blue-800);font-size:13px;">GS</div>
-              <div>
-                <p style="font-size:14px;font-weight:600;color:var(--text);">Gestor Suporte</p>
-                <p class="text-small">suporte@condo.com</p>
-              </div>
-            </div>
-            <div style="display:flex;gap:6px;">
-              <button class="btn btn-ghost" style="padding:5px 8px;" onclick="toast('Editar administrador')"><i class="ti ti-edit" style="font-size:14px;"></i></button>
-              <button class="btn btn-danger" style="padding:5px 8px;" onclick="confirmarExclusao('administrador')"><i class="ti ti-trash" style="font-size:14px;"></i></button>
-            </div>
-          </div>
-          <hr class="divider">
-          <p class="form-label" style="margin-bottom:8px;">Permissões</p>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;" id="perm-gestor">
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" checked onchange="updatePerm(this)" style="width:auto;margin:0;"> Moradores</label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" onchange="updatePerm(this)" style="width:auto;margin:0;"> Multas</label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" checked onchange="updatePerm(this)" style="width:auto;margin:0;"> Veículos</label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" onchange="updatePerm(this)" style="width:auto;margin:0;"> Regras</label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" checked onchange="updatePerm(this)" style="width:auto;margin:0;"> Avisos</label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" onchange="updatePerm(this)" style="width:auto;margin:0;"> Configurações</label>
-          </div>
+        <div style="display:flex;flex-direction:column;align-items:center;padding:24px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+          <i class="ti ti-loader" style="font-size:24px;color:var(--hint);"></i>
+          <p style="font-size:12px;color:var(--hint);margin-top:8px;">Carregando...</p>
         </div>
       </div>
       <button class="dashed-btn" onclick="showScreen('admin-novo-admin')"><i class="ti ti-plus" style="font-size:18px;"></i>Adicionar administrador</button>
@@ -1243,7 +1240,7 @@ textarea{resize:none;height:80px;}
     <div class="bottom-nav">
       <button class="nav-item" onclick="showScreen('admin-home')"><i class="ti ti-layout-dashboard"></i><span>Painel</span></button>
       <button class="nav-item" onclick="showScreen('admin-moradores')"><i class="ti ti-users"></i><span>Moradores</span></button>
-      <button class="nav-item" onclick="showScreen('admin-multas')"><i class="ti ti-receipt"></i><span>Multas</span></button>
+      <button class="nav-item" onclick="showScreen('admin-multas')"><i class="ti ti-receipt"></i><span>Pagamentos</span></button>
       <button class="nav-item" onclick="showScreen('admin-veiculos')"><i class="ti ti-car"></i><span>Veículos</span></button>
       <button class="nav-item active" onclick="showScreen('admin-config')"><i class="ti ti-settings"></i><span>Config.</span></button>
     </div>
@@ -1391,6 +1388,175 @@ textarea{resize:none;height:80px;}
     </div>
   </div>
 
+  <!-- ===== ESQUECI SENHA ===== -->
+  <div id="screen-esqueci-senha" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('login')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Recuperar senha</h2>
+    </div>
+    <div class="content" style="display:flex;flex-direction:column;align-items:center;padding-top:32px;">
+      <div style="width:64px;height:64px;border-radius:50%;background:var(--teal-50);display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:20px;">🔑</div>
+      <p style="font-size:14px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:24px;">Digite seu e-mail e enviaremos um link para redefinir sua senha.</p>
+      <div style="width:100%;" class="card">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">E-mail cadastrado</label>
+          <input type="email" id="esqueci-email" placeholder="seu@email.com">
+        </div>
+      </div>
+      <button id="btn-esqueci" class="btn btn-primary" style="margin-top:12px;" onclick="enviarRecuperacaoSenha()">Enviar link de recuperação</button>
+    </div>
+  </div>
+
+  <!-- ===== 2FA SETUP ===== -->
+  <div id="screen-2fa-setup" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('perfil')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Autenticação em 2 Fatores</h2>
+    </div>
+    <div class="content">
+      <div class="card" style="text-align:center;margin-bottom:12px;">
+        <p style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px;">📱 Escaneie o QR Code</p>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Use Google Authenticator ou Authy para escanear</p>
+        <div id="qrcode-wrap" style="display:flex;justify-content:center;margin-bottom:14px;">
+          <div style="width:160px;height:160px;background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;">
+            <canvas id="qrcode-canvas" width="150" height="150"></canvas>
+          </div>
+        </div>
+        <p class="form-label" style="margin-bottom:4px;">Ou insira a chave manualmente:</p>
+        <p id="totp-secret-display" style="font-family:monospace;font-size:13px;color:var(--teal-600);word-break:break-all;padding:8px;background:var(--teal-50);border-radius:var(--radius-sm);"></p>
+      </div>
+      <div class="card" style="margin-bottom:12px;">
+        <label class="form-label">Digite o código do app para confirmar</label>
+        <input type="text" id="totp-verify-code" placeholder="000000" maxlength="6" style="text-align:center;font-size:22px;letter-spacing:8px;font-family:monospace;">
+        <button class="btn btn-primary" style="margin-top:12px;" onclick="verificar2FA()">Ativar 2FA</button>
+      </div>
+      <div class="card" id="backup-codes-wrap" style="display:none;">
+        <p style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;">🔒 Códigos de recuperação</p>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Guarde estes códigos em local seguro. Cada um pode ser usado uma vez.</p>
+        <div id="backup-codes-list" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 2FA VERIFICAR LOGIN ===== -->
+  <div id="screen-2fa-login" class="screen" style="flex-direction:column;">
+    <div class="login-wrap" style="justify-content:center;">
+      <div style="font-size:48px;margin-bottom:20px;">🔐</div>
+      <h2 style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;text-align:center;">Verificação em 2 etapas</h2>
+      <p style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:24px;">Digite o código do seu aplicativo autenticador</p>
+      <div style="width:100%;">
+        <input type="text" id="login-2fa-code" placeholder="000000" maxlength="6" style="text-align:center;font-size:28px;letter-spacing:10px;font-family:monospace;margin-bottom:12px;">
+        <button id="btn-2fa-verify" class="btn btn-primary" onclick="verificarLogin2FA()">Verificar</button>
+        <button style="width:100%;background:none;border:none;color:var(--teal-600);font-size:13px;cursor:pointer;margin-top:10px;padding:8px;" onclick="showScreen('login-2fa-backup')">Usar código de recuperação</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ACHADOS E PERDIDOS MORADOR ===== -->
+  <div id="screen-achados" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showTab('home')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Achados e Perdidos</h2>
+    </div>
+    <div class="content">
+      <div id="achados-lista-morador">
+        <div style="text-align:center;padding:32px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+          <p style="font-size:32px;margin-bottom:10px;">🔍</p>
+          <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhum item no momento</p>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item active" onclick="showTab('home')"><i class="ti ti-home"></i><span>Início</span></button>
+      <button class="nav-item" onclick="showTab('reservas')"><i class="ti ti-calendar"></i><span>Reservas</span></button>
+      <button class="nav-item" onclick="showTab('reunioes')"><i class="ti ti-users"></i><span>Reuniões</span></button>
+      <button class="nav-item" onclick="showTab('assistencia')"><i class="ti ti-tool"></i><span>Suporte</span></button>
+      <button class="nav-item" onclick="showScreen('perfil')"><i class="ti ti-user"></i><span>Perfil</span></button>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN ACHADOS E PERDIDOS ===== -->
+  <div id="screen-admin-achados" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('admin-home')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Achados e Perdidos</h2>
+      <button onclick="showScreen('admin-novo-achado')" style="margin-left:auto;background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:var(--radius-sm);padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;">
+        <i class="ti ti-plus" style="font-size:14px;"></i> Novo item
+      </button>
+    </div>
+    <div class="content">
+      <div style="display:flex;gap:6px;margin-bottom:12px;">
+        <button onclick="filtrarAchados('aberto',this)" class="filter-btn active">Em aberto</button>
+        <button onclick="filtrarAchados('encontrado',this)" class="filter-btn">Encontrados</button>
+      </div>
+      <div id="achados-admin-lista"></div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="showScreen('admin-home')"><i class="ti ti-layout-dashboard"></i><span>Painel</span></button>
+      <button class="nav-item" onclick="showScreen('admin-moradores')"><i class="ti ti-users"></i><span>Moradores</span></button>
+      <button class="nav-item active" onclick="showScreen('admin-achados')"><i class="ti ti-search"></i><span>Achados</span></button>
+      <button class="nav-item" onclick="showScreen('admin-multas')"><i class="ti ti-receipt"></i><span>Pagamentos</span></button>
+      <button class="nav-item" onclick="showScreen('admin-config')"><i class="ti ti-settings"></i><span>Config.</span></button>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN NOVO ACHADO ===== -->
+  <div id="screen-admin-novo-achado" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('admin-achados')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Registrar item</h2>
+    </div>
+    <div class="content">
+      <div class="card" style="margin-bottom:10px;">
+        <div class="form-group">
+          <label class="form-label">Título do item</label>
+          <input type="text" id="achado-titulo" placeholder="Ex: Chave, carteira, óculos...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descrição</label>
+          <textarea id="achado-desc" placeholder="Descreva o item, onde foi encontrado, cor, marca..."></textarea>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Foto do item</label>
+          <div id="achado-foto-preview" style="width:100%;height:120px;background:var(--bg);border:1px dashed var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;margin-bottom:8px;" onclick="document.getElementById('achado-foto-input').click()">
+            <div style="text-align:center;">
+              <i class="ti ti-camera" style="font-size:28px;color:var(--hint);display:block;margin-bottom:6px;"></i>
+              <p style="font-size:12px;color:var(--hint);">Toque para adicionar foto</p>
+            </div>
+          </div>
+          <input type="file" id="achado-foto-input" accept="image/*" style="display:none;" onchange="previewAchadoFoto(this)">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="publicarAchado()">Publicar item</button>
+    </div>
+  </div>
+
+  <!-- ===== NOVA SENHA (pós recuperação) ===== -->
+  <div id="screen-nova-senha" class="screen" style="flex-direction:column;">
+    <div class="login-wrap" style="justify-content:center;">
+      <div style="font-size:56px;margin-bottom:20px;">🔑</div>
+      <h2 style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;text-align:center;">Criar nova senha</h2>
+      <p style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:24px;">Digite sua nova senha abaixo.</p>
+      <div style="width:100%;">
+        <div class="form-group">
+          <label class="form-label">Nova senha</label>
+          <div class="password-wrap">
+            <input type="password" id="nova-senha-input" placeholder="Mínimo 6 caracteres">
+            <button class="eye-btn" type="button" onclick="toggleEye('nova-senha-input',this)"><i class="ti ti-eye"></i></button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirmar senha</label>
+          <div class="password-wrap">
+            <input type="password" id="nova-senha-confirm" placeholder="Repita a senha">
+            <button class="eye-btn" type="button" onclick="toggleEye('nova-senha-confirm',this)"><i class="ti ti-eye"></i></button>
+          </div>
+        </div>
+        <button id="btn-nova-senha" class="btn btn-primary" onclick="salvarNovaSenha()">Salvar nova senha</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== MANUTENÇÃO ===== -->
   <div id="screen-manutencao" class="screen" style="flex-direction:column;">
     <div class="login-wrap" style="justify-content:center;">
@@ -1457,7 +1623,7 @@ textarea{resize:none;height:80px;}
       <button class="nav-item" onclick="showScreen('admin-home')"><i class="ti ti-layout-dashboard"></i><span>Painel</span></button>
       <button class="nav-item" onclick="showScreen('admin-moradores')"><i class="ti ti-users"></i><span>Moradores</span></button>
       <button class="nav-item active" onclick="showScreen('admin-encomendas')"><i class="ti ti-package"></i><span>Encomendas</span></button>
-      <button class="nav-item" onclick="showScreen('admin-multas')"><i class="ti ti-receipt"></i><span>Multas</span></button>
+      <button class="nav-item" onclick="showScreen('admin-multas')"><i class="ti ti-receipt"></i><span>Pagamentos</span></button>
       <button class="nav-item" onclick="showScreen('admin-config')"><i class="ti ti-settings"></i><span>Config.</span></button>
     </div>
   </div>
@@ -1550,22 +1716,7 @@ function showTab(tab) {
 }
 
 // ===== AUTH =====
-async function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const senha = document.getElementById('login-senha').value;
-  if (!email||!senha) { toast('Preencha e-mail e senha'); return; }
-  setLoading('btn-login', true, 'Entrando...');
-  const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
-  if (error) {
-    const msg = error.message.includes('Invalid') ? 'E-mail ou senha incorretos' :
-                error.message.includes('Email not confirmed') ? 'Confirme seu e-mail antes de entrar' :
-                'Erro ao entrar: ' + error.message;
-    toast(msg);
-    setLoading('btn-login', false, 'Entrar');
-    return;
-  }
-  await carregarUsuario(data.user);
-}
+// doLogin — versão completa abaixo com lembrar-me e 2FA
 
 let _carregando = false;
 async function carregarUsuario(authUser) {
@@ -1923,7 +2074,7 @@ async function carregarMultas() {
   if (!data || data.length === 0) {
     list.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;padding:36px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
       <i class="ti ti-receipt-off" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
-      <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhuma multa registrada</p>
+      <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhum pagamento registrado</p>
     </div>`;
     return;
   }
@@ -2052,13 +2203,19 @@ async function carregarCargosSelect(cargoAtual) {
   sel.innerHTML = `<option value="morador" ${!cargoAtual||cargoAtual==='morador'?'selected':''}>🏠 Morador (sem cargo especial)</option>`;
   if (data) data.forEach(c => {
     const isSind = c.permissoes && c.permissoes.tudo;
-    sel.innerHTML += `<option value="${c.nome.toLowerCase().replace(/\s+/g,'-')}" data-perms='${JSON.stringify(c.permissoes)}' ${cargoAtual===c.nome.toLowerCase().replace(/\s+/g,'-')?'selected':''}>${isSind?'⭐':''} ${c.nome}</option>`;
+    const selected = cargoAtual === c.nome ? 'selected' : '';
+    sel.innerHTML += `<option value="${c.nome}" data-perms='${JSON.stringify(c.permissoes)}' ${selected}>${isSind?'⭐':''} ${c.nome}</option>`;
   });
   sel.onchange = function() {
     const opt = sel.options[sel.selectedIndex];
     const perms = opt.dataset.perms ? JSON.parse(opt.dataset.perms) : {};
     renderPermsDetalhe(perms);
   };
+  // Aplicar permissões do cargo atual se existir
+  if (cargoAtual && cargoAtual !== 'morador') {
+    const opt = Array.from(sel.options).find(o => o.value === cargoAtual);
+    if (opt && opt.dataset.perms) renderPermsDetalhe(JSON.parse(opt.dataset.perms));
+  }
 }
 
 function renderPermsDetalhe(permsAtivas) {
@@ -2174,6 +2331,48 @@ function toggleTudoNovoCargo(cb) {
   document.querySelectorAll('#novo-cargo-perms input[name="perm"]').forEach(i => { i.checked = cb.checked; i.disabled = cb.checked; });
 }
 
+async function carregarAdminsReais() {
+  if (!STATE.condominioId) return;
+  const { data } = await sb.from('usuarios').select('*').eq('condominio_id', STATE.condominioId).eq('role','admin').order('nome');
+  const list = document.getElementById('admins-list');
+  if (!list) return;
+  if (!data || data.length === 0) {
+    list.innerHTML = `<div class="card" style="text-align:center;padding:20px;color:var(--muted);">Nenhum administrador encontrado.</div>`;
+    return;
+  }
+  const euId = STATE.currentUser?.id;
+  list.innerHTML = data.map(u => {
+    const inits = u.nome.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+    const isEu = u.id === euId;
+    const temTudo = u.permissoes?.tudo;
+    return `<div class="card" style="margin-bottom:10px;">
+      <div class="row-between">
+        <div class="row" style="gap:10px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:${isEu?'var(--teal-600)':'var(--blue-50)'};display:flex;align-items:center;justify-content:center;font-weight:700;color:${isEu?'#fff':'var(--blue-800)'};font-size:13px;">${inits}</div>
+          <div>
+            <p style="font-size:14px;font-weight:600;color:var(--text);">${u.nome}</p>
+            <p class="text-small">${u.email}</p>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="badge ${isEu?'badge-green':'badge-blue'}">${isEu?'Você':'Admin'}</span>
+          ${!isEu ? `<button class="btn btn-danger" style="padding:5px 8px;" onclick="removerAdmin('${u.id}','${u.nome}')"><i class="ti ti-trash" style="font-size:14px;"></i></button>` : ''}
+        </div>
+      </div>
+      <hr class="divider">
+      <p class="form-label" style="margin-bottom:6px;">Permissões</p>
+      <p style="font-size:12px;color:var(--muted);">${temTudo ? '🔑 Acesso total ao sistema' : Object.keys(u.permissoes||{}).filter(k=>u.permissoes[k]).join(', ') || 'Nenhuma permissão especial'}</p>
+    </div>`;
+  }).join('');
+}
+
+async function removerAdmin(id, nome) {
+  if (!confirm(`Rebaixar ${nome} de administrador para morador?`)) return;
+  await sb.from('usuarios').update({ role: 'morador', permissoes: {} }).eq('id', id);
+  toast(`${nome} removido dos administradores`);
+  carregarAdminsReais();
+}
+
 async function toggleBloqueio(id, nome, bloqueado) {
   const acao = bloqueado ? 'desbloquear' : 'bloquear';
   if (!confirm(`Deseja ${acao} ${nome}?`)) return;
@@ -2218,7 +2417,7 @@ async function carregarMultasAdmin() {
   if (!data || data.length === 0) {
     list.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;padding:36px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
       <i class="ti ti-receipt-off" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
-      <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhuma multa registrada</p>
+      <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhum pagamento registrado</p>
     </div>`;
     return;
   }
@@ -2685,31 +2884,57 @@ function applyLogo(base64) {
 
 // ===== CONFIG: CORES =====
 function applyTheme(hex, light, dark) {
-  const root = document.documentElement;
+  if (!hex || !/^#[0-9A-Fa-f]{6}$/.test(hex)) return;
   const lightColor = light || lightenHex(hex);
   const darkColor = dark || darkenHex(hex);
+
+  // 1. Atualizar CSS vars no root
+  const root = document.documentElement;
   root.style.setProperty('--teal-600', hex);
   root.style.setProperty('--teal-50', lightColor);
   root.style.setProperty('--teal-800', darkColor);
   root.style.setProperty('--teal-400', hex);
   root.style.setProperty('--teal-100', lightColor);
   root.style.setProperty('--accent', hex);
-  // Forçar cor em elementos que usam background inline fixo
-  document.querySelectorAll('.status-bar, .top-nav, .detail-header, .login-logo, #login-logo-wrap').forEach(el => {
-    el.style.background = hex;
-  });
-  document.querySelectorAll('.btn-primary').forEach(el => {
-    el.style.background = hex;
-  });
-  // Atualiza preview bar
+
+  // 2. Injetar/atualizar <style> dinâmica com !important
+  // Isso garante que TODOS os elementos (inclusive com inline style) recebem a cor
+  let dynStyle = document.getElementById('dynamic-theme-style');
+  if (!dynStyle) {
+    dynStyle = document.createElement('style');
+    dynStyle.id = 'dynamic-theme-style';
+    document.head.appendChild(dynStyle);
+  }
+  dynStyle.textContent = `
+    .top-nav, .detail-header, .login-logo, #login-logo-wrap, #home-logo-wrap { background: ${hex} !important; }
+    .btn-primary { background: ${hex} !important; }
+    .nav-item.active i, .nav-item.active span { color: ${hex} !important; }
+    .badge-green { background: ${lightColor} !important; color: ${darkColor} !important; }
+    .area-option.selected, .quick-card.active { border-color: ${hex} !important; background: ${lightColor} !important; }
+    .tab-btn.active, .filter-btn.active { background: ${hex} !important; border-color: ${hex} !important; }
+    .day-btn.selected, .time-btn.selected { background: ${hex} !important; border-color: ${hex} !important; }
+    input:focus, select:focus, textarea:focus { border-color: ${hex} !important; }
+    .perm-toggle:has(input:checked) { background: ${lightColor} !important; border-color: ${hex} !important; }
+    .dashed-btn { color: ${hex} !important; }
+    .btn-secondary { border-color: ${hex} !important; color: ${hex} !important; }
+    .area-salao-check, .area-churras-check, .area-piscina-check, .area-jogos-check,
+    [id$="-check"] { background: ${hex} !important; }
+    .confirm-label { color: ${hex} !important; }
+    .confirm-card { background: ${lightColor} !important; }
+    .confirm-value { color: ${darkColor} !important; }
+    .admin-stat .num { color: ${hex} !important; }
+    .section-title { color: var(--muted); }
+  `;
+
+  // 3. Atualizar preview e picker
   const bar = document.getElementById('theme-preview-bar');
   if (bar) bar.style.background = hex;
-  // Atualiza color picker
   const pick = document.getElementById('custom-color-pick');
   if (pick) pick.value = hex;
   const hexIn = document.getElementById('custom-color-hex');
   if (hexIn) hexIn.value = hex;
-  // Persiste no localStorage para sobreviver ao F5
+
+  // 4. Persistir
   try { localStorage.setItem('prediohub_cor_tema', hex); } catch(e) {}
 }
 
@@ -3099,15 +3324,399 @@ async function reenviarEmail() {
   toast('✅ E-mail reenviado!');
 }
 
-// Hook na showScreen para carregar dados automaticamente
-const _showScreenOriginal = showScreen;
+// ===== TOGGLE OLHO SENHA =====
+// ===== TOGGLE OLHO SENHA =====
+function toggleEye(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const icon = btn.querySelector('i');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.className = 'ti ti-eye-off';
+  } else {
+    input.type = 'password';
+    icon.className = 'ti ti-eye';
+  }
+}
+
+// ===== LEMBRAR DE MIM =====
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const senha = document.getElementById('login-senha').value;
+  const lembrar = document.getElementById('lembrar-me')?.checked ?? true;
+  if (!email || !senha) { toast('Preencha e-mail e senha'); return; }
+  setLoading('btn-login', true, 'Entrando...');
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
+  if (error) {
+    const msg = error.message.includes('Invalid') ? 'E-mail ou senha incorretos' :
+                error.message.includes('Email not confirmed') ? 'Confirme seu e-mail antes de entrar' :
+                'Erro ao entrar: ' + error.message;
+    toast(msg); setLoading('btn-login', false, 'Entrar'); return;
+  }
+  if (!lembrar) {
+    try { sessionStorage.setItem('prediohub_no_remember', '1'); } catch(e) {}
+  } else {
+    try { sessionStorage.removeItem('prediohub_no_remember'); } catch(e) {}
+  }
+  // Verificar 2FA
+  const { data: p2fa } = await sb.from('usuarios').select('totp_ativo').eq('id', data.user.id).single();
+  if (p2fa?.totp_ativo) {
+    STATE._pendingUser = data.user;
+    setLoading('btn-login', false, 'Entrar');
+    showScreen('2fa-login'); return;
+  }
+  await carregarUsuario(data.user);
+}
+
+window.addEventListener('beforeunload', () => {
+  try { if (sessionStorage.getItem('prediohub_no_remember')) sb.auth.signOut(); } catch(e) {}
+});
+
+// ===== ESQUECI SENHA =====
+async function enviarRecuperacaoSenha() {
+  const email = document.getElementById('esqueci-email').value.trim();
+  if (!email) { toast('Digite seu e-mail'); return; }
+  setLoading('btn-esqueci', true, 'Enviando...');
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://www.prediohub.com'
+  });
+  setLoading('btn-esqueci', false, 'Enviar link de recuperação');
+  if (error) { toast('Erro: ' + error.message); return; }
+  const content = document.querySelector('#screen-esqueci-senha .content');
+  if (content) content.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;padding-top:48px;text-align:center;">
+      <div style="font-size:56px;margin-bottom:20px;">📬</div>
+      <h3 style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:10px;">E-mail enviado!</h3>
+      <p style="font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:24px;">Verifique sua caixa de entrada e clique no link para redefinir sua senha.</p>
+      <button class="btn btn-primary" onclick="showScreen('login')">Voltar ao login</button>
+    </div>`;
+}
+
+// ===== NOVA SENHA =====
+async function salvarNovaSenha() {
+  const nova = document.getElementById('nova-senha-input').value;
+  const conf = document.getElementById('nova-senha-confirm').value;
+  if (!nova || nova.length < 6) { toast('Senha deve ter pelo menos 6 caracteres'); return; }
+  if (nova !== conf) { toast('As senhas não coincidem'); return; }
+  setLoading('btn-nova-senha', true, 'Salvando...');
+  const { error } = await sb.auth.updateUser({ password: nova });
+  setLoading('btn-nova-senha', false, 'Salvar nova senha');
+  if (error) { toast('Erro: ' + error.message); return; }
+  toast('✅ Senha alterada com sucesso!');
+  await sb.auth.signOut();
+  showScreen('login');
+}
+
+// Detectar link de recuperação ao carregar
+(function() {
+  const hash = window.location.hash;
+  if (hash.includes('type=recovery')) {
+    // Aguardar o Supabase processar o token
+    setTimeout(() => showScreen('nova-senha'), 300);
+  }
+})();
+
+// ===== 2FA TOTP =====
+let _totpSecret = '';
+
+function gerarTOTPSecret() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  let secret = '';
+  const arr = new Uint8Array(20);
+  crypto.getRandomValues(arr);
+  arr.forEach(b => { secret += chars[b % 32]; });
+  return secret;
+}
+
+function base32ToBytes(base32) {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  let bits = 0, value = 0;
+  const output = [];
+  for (const c of base32.toUpperCase().replace(/=+$/, '')) {
+    value = (value << 5) | alphabet.indexOf(c);
+    bits += 5;
+    if (bits >= 8) { output.push((value >>> (bits - 8)) & 255); bits -= 8; }
+  }
+  return new Uint8Array(output);
+}
+
+async function getTOTPCode(secret) {
+  const epoch = Math.floor(Date.now() / 1000 / 30);
+  const msg = new DataView(new ArrayBuffer(8));
+  msg.setUint32(4, epoch, false);
+  const key = await crypto.subtle.importKey('raw', base32ToBytes(secret), {name:'HMAC',hash:'SHA-1'}, false, ['sign']);
+  const sig = new Uint8Array(await crypto.subtle.sign('HMAC', key, msg.buffer));
+  const offset = sig[19] & 0xf;
+  const code = ((sig[offset]&0x7f)<<24|(sig[offset+1]&0xff)<<16|(sig[offset+2]&0xff)<<8|(sig[offset+3]&0xff)) % 1000000;
+  return String(code).padStart(6, '0');
+}
+
+async function validarTOTP(secret, inputCode) {
+  // Validar window de -1, 0, +1 (90 segundos de tolerância)
+  const epoch = Math.floor(Date.now() / 1000 / 30);
+  for (const delta of [-1, 0, 1]) {
+    const msg = new DataView(new ArrayBuffer(8));
+    msg.setUint32(4, epoch + delta, false);
+    const key = await crypto.subtle.importKey('raw', base32ToBytes(secret), {name:'HMAC',hash:'SHA-1'}, false, ['sign']);
+    const sig = new Uint8Array(await crypto.subtle.sign('HMAC', key, msg.buffer));
+    const offset = sig[19] & 0xf;
+    const code = ((sig[offset]&0x7f)<<24|(sig[offset+1]&0xff)<<16|(sig[offset+2]&0xff)<<8|(sig[offset+3]&0xff)) % 1000000;
+    if (String(code).padStart(6,'0') === inputCode.trim()) return true;
+  }
+  return false;
+}
+
+async function iniciar2FA() {
+  if (!STATE.currentUser) return;
+  if (STATE.currentUser.totp_ativo) {
+    if (!confirm('Desativar autenticação em 2 fatores?')) return;
+    await sb.from('usuarios').update({ totp_ativo: false, totp_secret: null, totp_backup_codes: [] }).eq('id', STATE.currentUser.id);
+    STATE.currentUser.totp_ativo = false;
+    document.getElementById('2fa-status-txt').textContent = 'Protege sua conta com um código extra';
+    document.getElementById('btn-2fa-toggle').textContent = 'Ativar';
+    toast('2FA desativado'); return;
+  }
+  _totpSecret = gerarTOTPSecret();
+  const email = STATE.currentUser.email || '';
+  const otpauthUrl = `otpauth://totp/PredioHub:${encodeURIComponent(email)}?secret=${_totpSecret}&issuer=PredioHub&algorithm=SHA1&digits=6&period=30`;
+  showScreen('2fa-setup');
+  const display = document.getElementById('totp-secret-display');
+  if (display) display.textContent = _totpSecret;
+  const canvas = document.getElementById('qrcode-canvas');
+  if (canvas) {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => { const ctx = canvas.getContext('2d'); ctx.clearRect(0,0,150,150); ctx.drawImage(img, 0, 0, 150, 150); };
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(otpauthUrl)}`;
+  }
+}
+
+async function verificar2FA() {
+  const code = document.getElementById('totp-verify-code').value.trim();
+  if (code.length !== 6) { toast('Digite o código de 6 dígitos'); return; }
+  const valid = await validarTOTP(_totpSecret, code);
+  if (!valid) { toast('Código inválido. Tente novamente.'); return; }
+  const backups = Array.from({length:8}, () => Math.random().toString(36).slice(2,8).toUpperCase());
+  await sb.from('usuarios').update({ totp_secret: _totpSecret, totp_ativo: true, totp_backup_codes: backups }).eq('id', STATE.currentUser.id);
+  STATE.currentUser.totp_ativo = true;
+  STATE.currentUser.totp_secret = _totpSecret;
+  const backupArea = document.getElementById('backup-codes-area');
+  if (backupArea) { backupArea.innerHTML = backups.map(c=>`<code style="background:var(--bg);padding:4px 8px;border-radius:4px;font-family:monospace;font-size:13px;">${c}</code>`).join(' '); }
+  const step1 = document.getElementById('2fa-step-verify');
+  const step2 = document.getElementById('2fa-step-success');
+  if (step1) step1.style.display = 'none';
+  if (step2) step2.style.display = 'block';
+  document.getElementById('btn-2fa-toggle').textContent = 'Desativar';
+  document.getElementById('2fa-status-txt').textContent = '✅ Ativo — sua conta está protegida';
+}
+
+async function verificarLogin2FA() {
+  const code = document.getElementById('2fa-login-code').value.trim();
+  if (code.length !== 6) { toast('Digite o código de 6 dígitos'); return; }
+  const user = STATE._pendingUser;
+  if (!user) { showScreen('login'); return; }
+  const { data: perfil } = await sb.from('usuarios').select('totp_secret,totp_backup_codes').eq('id', user.id).single();
+  if (!perfil?.totp_secret) { await carregarUsuario(user); return; }
+  // Verificar código TOTP
+  const valid = await validarTOTP(perfil.totp_secret, code);
+  if (valid) { await carregarUsuario(user); return; }
+  // Verificar backup codes
+  const backups = perfil.totp_backup_codes || [];
+  const idx = backups.indexOf(code.toUpperCase());
+  if (idx !== -1) {
+    backups.splice(idx, 1);
+    await sb.from('usuarios').update({ totp_backup_codes: backups }).eq('id', user.id);
+    toast('Backup code usado. Restam ' + backups.length);
+    await carregarUsuario(user); return;
+  }
+  toast('Código inválido');
+}
+
+// ===== ACHADOS E PERDIDOS =====
+function previewAchadoFoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const preview = document.getElementById('achado-foto-preview');
+    if (preview) preview.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius-sm);">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function publicarAchado() {
+  const titulo = document.getElementById('achado-titulo').value.trim();
+  const desc = document.getElementById('achado-desc').value.trim();
+  if (!titulo) { toast('Digite o título do item'); return; }
+
+  let fotoUrl = null;
+  const fileInput = document.getElementById('achado-foto-input');
+  if (fileInput.files[0]) {
+    const file = fileInput.files[0];
+    const ext = file.name.split('.').pop();
+    const path = `${STATE.condominioId}/${Date.now()}.${ext}`;
+    const { data: upload, error: upErr } = await sb.storage.from('achados').upload(path, file, { upsert: true });
+    if (!upErr && upload) {
+      const { data: urlData } = sb.storage.from('achados').getPublicUrl(path);
+      fotoUrl = urlData.publicUrl;
+    }
+  }
+
+  const { error } = await sb.from('achados_perdidos').insert({
+    condominio_id: STATE.condominioId,
+    titulo, descricao: desc, foto_url: fotoUrl,
+    status: 'aberto', criado_por: STATE.currentUser.id
+  });
+  if (error) { toast('Erro ao publicar: ' + error.message); return; }
+  toast('✅ Item publicado!');
+  document.getElementById('achado-titulo').value = '';
+  document.getElementById('achado-desc').value = '';
+  document.getElementById('achado-foto-preview').innerHTML = `<div style="text-align:center;"><i class="ti ti-camera" style="font-size:28px;color:var(--hint);display:block;margin-bottom:6px;"></i><p style="font-size:12px;color:var(--hint);">Toque para adicionar foto</p></div>`;
+  fileInput.value = '';
+  showScreen('admin-achados');
+  carregarAchadosAdmin('aberto');
+}
+
+async function carregarAchadosMorador() {
+  const lista = document.getElementById('achados-lista-morador');
+  if (!lista || !STATE.condominioId) return;
+  lista.innerHTML = `<p style="text-align:center;padding:24px;color:var(--hint);">Carregando...</p>`;
+  const { data } = await sb.from('achados_perdidos').select('*, achados_reacoes(usuario_id)')
+    .eq('condominio_id', STATE.condominioId).order('criado_em', {ascending:false});
+  if (!data || data.length === 0) {
+    lista.innerHTML = `<div style="text-align:center;padding:32px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);"><p style="font-size:32px;margin-bottom:10px;">🔍</p><p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhum item no momento</p></div>`; return;
+  }
+  lista.innerHTML = data.map(item => {
+    const meuReact = item.achados_reacoes?.some(r => r.usuario_id === STATE.currentUser?.id);
+    const totalReact = item.achados_reacoes?.length || 0;
+    const encontrado = item.status === 'encontrado';
+    return `<div class="card" style="margin-bottom:10px;${encontrado?'opacity:0.7;':''}">
+      ${item.foto_url ? `<img src="${item.foto_url}" style="width:100%;height:140px;object-fit:cover;border-radius:var(--radius-sm);margin-bottom:10px;">` : ''}
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <p style="font-size:15px;font-weight:700;color:var(--text);flex:1;">${item.titulo}</p>
+        <span class="badge ${encontrado?'badge-green':'badge-amber'}">${encontrado?'✅ Encontrado':'📦 Em aberto'}</span>
+      </div>
+      ${item.descricao?`<p style="font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.5;">${item.descricao}</p>`:''}
+      <p style="font-size:11px;color:var(--hint);margin-bottom:10px;">${new Date(item.criado_em).toLocaleDateString('pt-BR')}</p>
+      ${!encontrado?`<button onclick="reagirAchado('${item.id}',this)" style="width:100%;padding:10px;border:1.5px solid ${meuReact?'var(--teal-600)':'var(--border)'};background:${meuReact?'var(--teal-50)':'var(--card)'};border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:600;color:${meuReact?'var(--teal-700)':'var(--muted)'};display:flex;align-items:center;justify-content:center;gap:6px;">
+        <span>${meuReact?'✋ É meu!':'🤔 É meu?'}</span><span style="font-size:12px;opacity:0.7;">${totalReact>0?`(${totalReact})`:''}</span>
+      </button>`:''}
+    </div>`;
+  }).join('');
+}
+
+async function reagirAchado(id, btn) {
+  if (!STATE.currentUser) return;
+  const { data: exist } = await sb.from('achados_reacoes').select('id').eq('achado_id', id).eq('usuario_id', STATE.currentUser.id).single();
+  if (exist) {
+    await sb.from('achados_reacoes').delete().eq('id', exist.id);
+  } else {
+    await sb.from('achados_reacoes').insert({ achado_id: id, usuario_id: STATE.currentUser.id });
+  }
+  carregarAchadosMorador();
+}
+
+async function carregarAchadosAdmin(status) {
+  const lista = document.getElementById('achados-admin-lista');
+  if (!lista || !STATE.condominioId) return;
+  lista.innerHTML = `<p style="text-align:center;padding:24px;color:var(--hint);">Carregando...</p>`;
+  const { data } = await sb.from('achados_perdidos').select('*, achados_reacoes(usuario_id, usuarios(nome))')
+    .eq('condominio_id', STATE.condominioId).eq('status', status).order('criado_em', {ascending:false});
+  if (!data || data.length === 0) {
+    lista.innerHTML = `<div style="text-align:center;padding:32px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);"><p style="font-size:32px;margin-bottom:10px;">${status==='aberto'?'🔍':'✅'}</p><p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhum item ${status==='aberto'?'em aberto':'encontrado'}</p></div>`; return;
+  }
+  lista.innerHTML = data.map(item => {
+    const reacoes = item.achados_reacoes || [];
+    const nomes = reacoes.map(r => r.usuarios?.nome || 'Morador').join(', ');
+    return `<div class="card" style="margin-bottom:10px;">
+      ${item.foto_url ? `<img src="${item.foto_url}" style="width:100%;height:120px;object-fit:cover;border-radius:var(--radius-sm);margin-bottom:10px;">` : ''}
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <p style="font-size:14px;font-weight:700;color:var(--text);flex:1;">${item.titulo}</p>
+        ${status==='aberto'?`<button onclick="marcarEncontrado('${item.id}')" style="background:var(--teal-600);color:#fff;border:none;border-radius:var(--radius-sm);padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;">✅ Encontrado</button>`:''}
+      </div>
+      ${item.descricao?`<p style="font-size:12px;color:var(--muted);margin-bottom:8px;">${item.descricao}</p>`:''}
+      ${reacoes.length>0?`<div style="background:var(--amber-50);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:8px;"><p style="font-size:11px;color:var(--amber-800);font-weight:600;">🙋 ${reacoes.length} reação(ões): ${nomes}</p></div>`:''}
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+        <p style="font-size:11px;color:var(--hint);">${new Date(item.criado_em).toLocaleDateString('pt-BR')}</p>
+        <button onclick="excluirAchado('${item.id}')" style="background:none;border:none;color:var(--coral-600);cursor:pointer;font-size:12px;"><i class="ti ti-trash"></i> Excluir</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function marcarEncontrado(id) {
+  await sb.from('achados_perdidos').update({ status: 'encontrado', encontrado_em: new Date().toISOString() }).eq('id', id);
+  toast('✅ Item marcado como encontrado!');
+  carregarAchadosAdmin('aberto');
+}
+
+async function excluirAchado(id) {
+  if (!confirm('Excluir este item?')) return;
+  await sb.from('achados_perdidos').delete().eq('id', id);
+  toast('Item excluído');
+  carregarAchadosAdmin('aberto');
+}
+
+function filtrarAchados(status, btn) {
+  document.querySelectorAll('#screen-admin-achados .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  carregarAchadosAdmin(status);
+}
+
+// ===== PAGAMENTO APÓS RESERVA =====
+async function criarPendenciaReserva(reservaId, moradorId, area, dataStr) {
+  if (!STATE.condominioId) return;
+  const { data: existente } = await sb.from('multas').select('id').eq('reserva_id', reservaId).maybeSingle();
+  if (existente) return;
+  const expira = new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString();
+  await sb.from('multas').insert({
+    condominio_id: STATE.condominioId,
+    usuario_id: moradorId,
+    descricao: `Reserva: ${area} — ${dataStr}`,
+    valor: 0, status: 'pendente', tipo: 'reserva',
+    reserva_id: reservaId, expira_em: expira,
+    criado_em: new Date().toISOString()
+  });
+}
+
+// Verificar e expirar reservas vencidas (chamado periodicamente)
+async function verificarExpiracoes() {
+  if (!STATE.condominioId || !STATE.isAdmin) return;
+  await sb.rpc('expirar_reservas_nao_pagas');
+}
+
+// Checar expirações a cada 5 minutos quando admin estiver logado
+setInterval(() => { if (STATE.isAdmin) verificarExpiracoes(); }, 5 * 60 * 1000);
+
+// ===== HOOK showScreen =====
+const _origShowScreen = showScreen;
 showScreen = function(id) {
-  _showScreenOriginal(id);
+  _origShowScreen(id);
   if (id === 'encomendas') carregarEncomendasMorador();
   if (id === 'admin-encomendas') carregarEncomendasAdmin('aguardando');
   if (id === 'admin-nova-encomenda') carregarMoradoresSelect();
-  if (id === 'admin-moradores') { carregarMoradoresAdmin(); }
+  if (id === 'admin-moradores') carregarMoradoresAdmin();
+  if (id === 'admin-achados') carregarAchadosAdmin('aberto');
+  if (id === 'achados') carregarAchadosMorador();
+  if (id === 'perfil') {
+    const u = STATE.currentUser;
+    if (u) {
+      const btn = document.getElementById('btn-2fa-toggle');
+      const txt = document.getElementById('2fa-status-txt');
+      if (btn) btn.textContent = u.totp_ativo ? 'Desativar' : 'Ativar';
+      if (txt) txt.textContent = u.totp_ativo ? '✅ Ativo — sua conta está protegida' : 'Protege sua conta com um código extra';
+    }
+  }
+  if (id === 'admin-config') {
+    carregarAdminsReais();
+    if (STATE.condominioId) {
+      sb.from('condominios').select('instagram_url,modo_manutencao,manutencao_msg,formato_bloco,limite_moradores_apto').eq('id', STATE.condominioId).single().then(({data}) => aplicarConfiguracoesCondo(data));
+    }
+  }
 };
+
+
 </script>
 </body>
 </html>
