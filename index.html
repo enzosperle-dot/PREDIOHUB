@@ -1,0 +1,2881 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PredioHub</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --teal-50:#E1F5EE;--teal-100:#9FE1CB;--teal-400:#1D9E75;--teal-600:#0F6E56;--teal-800:#085041;
+  --gray-50:#F1EFE8;--gray-100:#D3D1C7;--gray-400:#888780;--gray-600:#5F5E5A;--gray-800:#444441;
+  --amber-50:#FAEEDA;--amber-100:#FAC775;--amber-600:#854F0B;--amber-800:#633806;
+  --blue-50:#E6F1FB;--blue-100:#B5D4F4;--blue-600:#185FA5;--blue-800:#0C447C;
+  --coral-50:#FAECE7;--coral-100:#F5C4B3;--coral-600:#993C1D;--coral-800:#712B13;
+  --red-50:#FCEBEB;--red-100:#F7C1C1;--red-600:#A32D2D;--red-800:#791F1F;
+  --green-50:#EAF3DE;--green-600:#3B6D11;--green-800:#27500A;
+  --bg:#F1EFE8;--card:#fff;--border:rgba(0,0,0,0.12);--text:#2C2C2A;--muted:#5F5E5A;--hint:#888780;
+  --radius-sm:8px;--radius-md:12px;--radius-lg:16px;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:20px 0;}
+.phone{width:375px;min-height:720px;background:var(--bg);border-radius:40px;border:1.5px solid var(--border);overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.15);position:relative;}
+.status-bar{background:var(--teal-600);padding:12px 20px 8px;display:flex;justify-content:space-between;align-items:center;color:#fff;font-size:11px;font-weight:500;}
+.screen{display:none;flex-direction:column;flex:1;min-height:0;}
+.screen.active{display:flex;}
+.perm-toggle{display:flex;align-items:center;gap:8px;background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;cursor:pointer;font-size:13px;color:var(--text);transition:all 0.15s;}
+.perm-toggle input{width:16px;height:16px;accent-color:var(--teal-600);}
+.perm-toggle:has(input:checked){background:var(--teal-50);border-color:var(--teal-400);}
+/* TOP NAV */
+.top-nav{background:var(--teal-600);padding:0 16px 16px;color:#fff;}
+.top-nav h1{font-size:20px;font-weight:600;}
+.top-nav-row{display:flex;justify-content:space-between;align-items:flex-start;}
+.avatar-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.25);border:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:16px;}
+/* BOTTOM NAV */
+.bottom-nav{background:var(--card);border-top:0.5px solid var(--border);display:flex;padding:6px 0 14px;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;cursor:pointer;border:none;background:none;}
+.nav-item i{font-size:20px;color:var(--hint);}
+.nav-item span{font-size:9px;color:var(--hint);font-weight:500;}
+.nav-item.active i,.nav-item.active span{color:var(--teal-600);}
+/* CARDS */
+.card{background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);padding:14px;margin-bottom:10px;}
+.section-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px;}
+/* BADGES */
+.badge{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;display:inline-block;}
+.badge-green{background:var(--teal-50);color:var(--teal-800);}
+.badge-amber{background:var(--amber-50);color:var(--amber-800);}
+.badge-blue{background:var(--blue-50);color:var(--blue-800);}
+.badge-coral{background:var(--coral-50);color:var(--coral-800);}
+.badge-gray{background:var(--gray-50);color:var(--gray-800);}
+.badge-red{background:var(--red-50);color:var(--red-800);}
+/* FORM */
+.form-group{margin-bottom:14px;}
+.form-label{font-size:12px;color:var(--muted);margin-bottom:5px;display:block;font-weight:500;}
+input,select,textarea{width:100%;border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-size:14px;background:var(--card);color:var(--text);font-family:inherit;outline:none;transition:border-color 0.15s;}
+input:focus,select:focus,textarea:focus{border-color:var(--teal-600);}
+textarea{resize:none;height:80px;}
+/* BUTTONS */
+.btn{border:none;border-radius:var(--radius-sm);padding:10px 16px;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.15s;font-family:inherit;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:var(--teal-600);color:#fff;width:100%;justify-content:center;padding:13px;border-radius:var(--radius-md);font-size:15px;}
+.btn-primary:hover{opacity:0.9;}
+.btn-secondary{background:none;border:0.5px solid var(--teal-600);color:var(--teal-600);}
+.btn-danger{background:var(--red-50);color:var(--red-600);border:0.5px solid var(--red-100);}
+.btn-ghost{background:none;border:0.5px solid var(--border);color:var(--text);}
+.btn:disabled{opacity:0.4;cursor:not-allowed;}
+/* DETAIL HEADER */
+.detail-header{background:var(--teal-600);padding:12px 16px 18px;color:#fff;display:flex;align-items:center;gap:12px;}
+.back-btn{background:none;border:none;color:#fff;cursor:pointer;font-size:20px;padding:0;line-height:1;}
+.detail-header h2{font-size:17px;font-weight:600;}
+/* QUICK GRID */
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.quick-card{background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius-md);padding:14px 12px;cursor:pointer;transition:all 0.15s;display:flex;flex-direction:column;gap:8px;}
+.quick-card:hover{border-color:var(--teal-400);}
+.qc-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;}
+.qc-label{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;}
+.qc-sub{font-size:11px;color:var(--muted);}
+/* NOTICE CARD */
+.notice-card{background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:background 0.15s;}
+.notice-card:hover{background:var(--gray-50);}
+.notice-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.notice-date{font-size:10px;color:var(--hint);}
+.notice-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;}
+.notice-preview{font-size:12px;color:var(--muted);line-height:1.5;}
+/* TICKET */
+.ticket-card{background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);padding:14px;margin-bottom:10px;}
+.ticket-title{font-size:14px;font-weight:600;color:var(--text);margin:8px 0 4px;}
+.ticket-desc{font-size:12px;color:var(--muted);}
+.ticket-footer{display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border);}
+.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;}
+/* AREA OPTION */
+.area-option{border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:12px;}
+.area-option:hover{border-color:var(--teal-600);}
+.area-option.selected{border-color:var(--teal-600);background:var(--teal-50);}
+/* DATE/TIME */
+.date-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.day-btn{border:none;background:none;border-radius:var(--radius-sm);padding:7px 2px;font-size:12px;cursor:pointer;color:var(--muted);transition:all 0.15s;}
+.day-btn:hover{background:var(--gray-50);}
+.day-btn.selected{background:var(--teal-600);color:#fff;}
+.day-btn.today{font-weight:700;color:var(--text);}
+.day-label{font-size:10px;color:var(--hint);text-align:center;padding:3px 0;}
+.time-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.time-btn{border:0.5px solid var(--border);background:var(--card);border-radius:var(--radius-sm);padding:8px;font-size:12px;cursor:pointer;color:var(--text);transition:all 0.15s;}
+.time-btn:hover{border-color:var(--teal-600);}
+.time-btn.selected{background:var(--teal-600);color:#fff;border-color:var(--teal-600);}
+.time-btn.unavailable{opacity:0.35;cursor:not-allowed;background:var(--gray-50);}
+/* SUCCESS */
+.success-icon{width:72px;height:72px;border-radius:50%;background:var(--teal-50);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 18px;}
+/* MEETING */
+.meeting-card{background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);padding:14px;margin-bottom:10px;}
+/* MULTAS */
+.multa-card{background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);padding:14px;margin-bottom:10px;}
+/* VEICULOS */
+.veiculo-card{background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+/* REGRAS */
+.regra-card{background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);padding:14px;margin-bottom:10px;}
+/* TABS */
+.tab-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.tab-btn{background:var(--gray-50);color:var(--muted);border:0.5px solid var(--border);border-radius:20px;padding:6px 13px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:500;transition:all 0.15s;}
+.tab-btn.active{background:var(--teal-600);color:#fff;border-color:var(--teal-600);}
+/* LOGIN */
+.login-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;flex:1;}
+.login-logo{width:72px;height:72px;border-radius:20px;background:var(--teal-600);display:flex;align-items:center;justify-content:center;font-size:36px;color:#fff;margin-bottom:24px;}
+/* PROFILE */
+.profile-avatar{width:72px;height:72px;border-radius:50%;background:var(--teal-50);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:var(--teal-800);border:2px solid var(--teal-100);cursor:pointer;position:relative;}
+/* ADMIN PANEL */
+.admin-stat{background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);padding:14px;text-align:center;}
+.admin-stat .num{font-size:26px;font-weight:700;color:var(--teal-600);}
+.admin-stat .lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+/* CONFIRM CARD */
+.confirm-card{background:var(--teal-50);border-radius:var(--radius-md);padding:16px;margin:16px 0;}
+.confirm-row{display:flex;justify-content:space-between;margin-bottom:6px;}
+.confirm-label{font-size:12px;color:var(--teal-600);}
+.confirm-value{font-size:12px;font-weight:600;color:var(--teal-800);}
+/* MODAL */
+.modal-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:100;display:flex;align-items:flex-end;justify-content:center;}
+.modal-box{background:var(--card);border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:20px;width:100%;max-height:80%;overflow-y:auto;}
+.modal-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:14px;}
+/* NOTIFICATION BADGE */
+.notif-dot{position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:#FAC775;border-radius:50%;border:1.5px solid var(--teal-600);}
+/* UTIL */
+.row{display:flex;align-items:center;gap:8px;}
+.row-between{display:flex;justify-content:space-between;align-items:center;}
+.mt8{margin-top:8px;}
+.mt12{margin-top:12px;}
+.mt16{margin-top:16px;}
+.text-muted{font-size:12px;color:var(--muted);}
+.text-small{font-size:11px;color:var(--hint);}
+.divider{border:none;border-top:0.5px solid var(--border);margin:12px 0;}
+.dashed-btn{display:flex;align-items:center;gap:8px;width:100%;background:var(--card);border:1px dashed var(--border);border-radius:var(--radius-md);padding:13px;color:var(--teal-600);font-size:14px;cursor:pointer;font-family:inherit;font-weight:500;margin-bottom:10px;transition:all 0.15s;}
+.dashed-btn:hover{background:var(--teal-50);}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
+.blocked-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;flex:1;}
+.color-swatch{width:100%;aspect-ratio:1;border-radius:var(--radius-sm);border:2.5px solid transparent;cursor:pointer;transition:all 0.15s;display:block;}
+.color-swatch.selected{border-color:#fff;outline:2.5px solid var(--accent,#0F6E56);outline-offset:1px;}
+.color-swatch:hover{transform:scale(1.08);}
+/* FILTER TAGS */
+.filter-btn{background:var(--gray-50);color:var(--muted);border:0.5px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.filter-btn.active{background:var(--teal-600);color:#fff;border-color:var(--teal-600);}
+</style>
+</head>
+<body>
+<h2 class="sr-only">PredioHub — Aplicativo de gestão condominial</h2>
+
+<div class="phone" id="app">
+  <div class="status-bar">
+    <span>9:41</span>
+    <span><i class="ti ti-wifi" style="font-size:13px"></i> <i class="ti ti-battery-2" style="font-size:13px"></i></span>
+  </div>
+
+  <!-- ===== LOGIN ===== -->
+  <div id="screen-login" class="screen active">
+    <div class="login-wrap">
+      <div class="login-logo" id="login-logo-wrap" style="overflow:hidden;position:relative;"><i class="ti ti-building-community" id="login-logo-icon"></i><img id="login-logo-img" src="" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;"></div>
+      <h2 style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;">PredioHub</h2>
+      <p id="login-condo-nome" style="font-size:13px;color:var(--muted);margin-bottom:28px;text-align:center;">Condomínio — faça seu login</p>
+      <div style="width:100%;">
+        <div class="form-group">
+          <label class="form-label">E-mail</label>
+          <input type="email" id="login-email" placeholder="seu@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Senha</label>
+          <input type="password" id="login-senha" placeholder="••••••••">
+        </div>
+        <button id="btn-login" class="btn btn-primary" onclick="doLogin()" style="margin-bottom:12px;">Entrar</button>
+        <button class="btn btn-ghost" style="width:100%;justify-content:center;" onclick="showScreen('cadastro')">Criar conta</button>
+        <p style="text-align:center;font-size:11px;color:var(--hint);margin-top:12px;">Admin: admin@condo.com / admin123</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CADASTRO ===== -->
+  <div id="screen-cadastro" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('login')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Criar conta</h2>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">Nome completo</label>
+          <input type="text" id="cad-nome" placeholder="Seu nome completo">
+        </div>
+        <div class="form-group">
+          <label class="form-label">E-mail</label>
+          <input type="email" id="cad-email" placeholder="seu@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Senha</label>
+          <input type="password" id="cad-senha" placeholder="Mínimo 6 caracteres">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="form-group">
+            <label class="form-label">Bloco</label>
+            <select id="cad-bloco">
+              <option>A</option><option>B</option><option>C</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Apartamento</label>
+            <input type="text" id="cad-apto" placeholder="Ex: 304">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Telefone</label>
+          <input type="tel" id="cad-tel" placeholder="(21) 99999-9999">
+        </div>
+      </div>
+      <button id="btn-cadastro" class="btn btn-primary" onclick="doCadastro()">Criar conta</button>
+    </div>
+  </div>
+
+  <!-- ===== BLOQUEADO ===== -->
+  <div id="screen-bloqueado" class="screen" style="flex-direction:column;">
+    <div class="detail-header" style="justify-content:center;"><h2>Acesso bloqueado</h2></div>
+    <div class="blocked-screen">
+      <div style="width:72px;height:72px;border-radius:50%;background:var(--red-50);display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:18px;"><i class="ti ti-lock" style="color:var(--red-600);"></i></div>
+      <h3 style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:10px;">Acesso bloqueado</h3>
+      <p style="font-size:14px;color:var(--muted);line-height:1.6;">Acesso bloqueado por falta de pagamento de multa. Regularize sua situação e entre em contato com a administração.</p>
+      <button class="btn btn-ghost" style="margin-top:24px;" onclick="showScreen('login')">Voltar ao login</button>
+    </div>
+  </div>
+
+  <!-- ===== HOME MORADOR ===== -->
+  <div id="screen-home" class="screen" style="flex-direction:column;">
+    <div class="top-nav">
+      <div class="top-nav-row">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div id="home-logo-wrap" style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+            <i class="ti ti-building-community" id="home-logo-icon" style="font-size:18px;color:#fff;"></i>
+            <img id="home-logo-img" src="" style="display:none;width:100%;height:100%;object-fit:cover;">
+          </div>
+          <div>
+            <p style="font-size:12px;opacity:0.75;margin-bottom:2px;">Bom dia 👋</p>
+            <h1 id="home-nome">Condomínio</h1>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button onclick="showScreen('notifs')" style="background:none;border:none;color:#fff;cursor:pointer;position:relative;" aria-label="Notificações">
+            <i class="ti ti-bell" style="font-size:22px"></i>
+          </button>
+          <button class="avatar-btn" id="home-avatar" onclick="showScreen('perfil')" aria-label="Perfil">MA</button>
+        </div>
+      </div>
+    </div>
+    <div class="content">
+      <p class="section-title">Acesso rápido</p>
+      <div class="quick-grid">
+        <div class="quick-card" onclick="showScreen('reservas')">
+          <div class="qc-icon" style="background:var(--teal-50);"><i class="ti ti-calendar-event" style="color:var(--teal-600);"></i></div>
+          <div class="qc-label">Reservar área</div>
+          <div class="qc-sub">Salão, churrasqueira...</div>
+        </div>
+        <div class="quick-card" onclick="showScreen('reunioes')">
+          <div class="qc-icon" style="background:var(--blue-50);"><i class="ti ti-users" style="color:var(--blue-600);"></i></div>
+          <div class="qc-label">Reuniões</div>
+          <div class="qc-sub">Nenhuma agendada</div>
+        </div>
+        <div class="quick-card" onclick="showScreen('assistencia')">
+          <div class="qc-icon" style="background:var(--coral-50);"><i class="ti ti-tool" style="color:var(--coral-600);"></i></div>
+          <div class="qc-label">Assistência</div>
+          <div class="qc-sub">Nenhum chamado aberto</div>
+        </div>
+        <div class="quick-card" onclick="showScreen('mural')">
+          <div class="qc-icon" style="background:var(--amber-50);"><i class="ti ti-news" style="color:var(--amber-600);"></i></div>
+          <div class="qc-label">Mural</div>
+          <div class="qc-sub">Nenhum aviso</div>
+        </div>
+        <div class="quick-card" onclick="showScreen('multas')">
+          <div class="qc-icon" style="background:var(--red-50);"><i class="ti ti-receipt" style="color:var(--red-600);"></i></div>
+          <div class="qc-label">Multas</div>
+          <div class="qc-sub" id="home-multas-sub">Ver minhas multas</div>
+        </div>
+        <div class="quick-card" onclick="showScreen('veiculos')">
+          <div class="qc-icon" style="background:var(--gray-50);"><i class="ti ti-car" style="color:var(--gray-600);"></i></div>
+          <div class="qc-label">Veículos</div>
+          <div class="qc-sub" id="home-veic-sub">Meus veículos</div>
+        </div>
+        <div class="quick-card" onclick="showScreen('regras')">
+          <div class="qc-icon" style="background:var(--green-50);"><i class="ti ti-book" style="color:var(--green-600);"></i></div>
+          <div class="qc-label">Regras</div>
+          <div class="qc-sub">Regulamento</div>
+        </div>
+        <div class="quick-card" onclick="showScreen('encomendas')" style="position:relative;">
+          <div class="qc-icon" style="background:var(--amber-50);"><i class="ti ti-package" style="color:var(--amber-600);"></i></div>
+          <div class="qc-label">Encomendas</div>
+          <div class="qc-sub" id="home-enc-sub">Nenhuma pendente</div>
+          <span id="home-enc-badge" style="display:none;position:absolute;top:10px;right:10px;background:var(--coral-600);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;"></span>
+        </div>
+      </div>
+      <p class="section-title">Últimos avisos</p>
+      <div style="display:flex;flex-direction:column;align-items:center;padding:28px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+        <i class="ti ti-news" style="font-size:32px;color:var(--hint);margin-bottom:10px;"></i>
+        <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhum aviso por enquanto</p>
+        <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:4px;">Quando a administração publicar um aviso, ele aparecerá aqui.</p>
+      </div>
+    </div>
+    <div class="bottom-nav" id="bottom-nav-home">
+      <button class="nav-item active" onclick="showTab('home')"><i class="ti ti-home"></i><span>Início</span></button>
+      <button class="nav-item" onclick="showTab('reservas')"><i class="ti ti-calendar"></i><span>Reservas</span></button>
+      <button class="nav-item" onclick="showTab('reunioes')"><i class="ti ti-users"></i><span>Reuniões</span></button>
+      <button class="nav-item" onclick="showTab('assistencia')"><i class="ti ti-tool"></i><span>Suporte</span></button>
+      <button class="nav-item" onclick="showScreen('perfil')"><i class="ti ti-user"></i><span>Perfil</span></button>
+    </div>
+  </div>
+
+  <!-- ===== PERFIL ===== -->
+  <div id="screen-perfil" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="goHome()"><i class="ti ti-arrow-left"></i></button>
+      <h2>Meu perfil</h2>
+    </div>
+    <div class="content">
+      <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:20px;">
+        <div class="profile-avatar" id="perfil-avatar" onclick="changeAvatar()">
+          <span id="perfil-initials">MA</span>
+          <div style="position:absolute;bottom:0;right:0;width:22px;height:22px;background:var(--teal-600);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;">
+            <i class="ti ti-camera" style="font-size:11px;color:#fff;"></i>
+          </div>
+        </div>
+        <p style="font-size:16px;font-weight:700;margin-top:10px;" id="perfil-nome-display">Marco Araújo</p>
+        <p style="font-size:13px;color:var(--muted);" id="perfil-apto-display">Ap. 304 · Bloco A</p>
+      </div>
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">Nome completo</label>
+          <input type="text" id="perfil-nome" value="Marco Araújo">
+        </div>
+        <div class="form-group">
+          <label class="form-label">E-mail</label>
+          <input type="email" id="perfil-email" value="morador@condo.com" disabled style="opacity:0.6;">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Telefone</label>
+          <input type="tel" id="perfil-tel" value="(21) 98765-4321">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="form-group">
+            <label class="form-label">Bloco</label>
+            <input type="text" value="A" disabled style="opacity:0.6;">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Apartamento</label>
+            <input type="text" value="304" disabled style="opacity:0.6;">
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="salvarPerfil()">Salvar alterações</button>
+      <button class="btn btn-danger" style="width:100%;justify-content:center;margin-top:10px;" onclick="doLogout()">Sair da conta</button>
+    </div>
+  </div>
+
+  <!-- ===== RESERVAS ===== -->
+  <div id="screen-reservas" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="goHome()"><i class="ti ti-arrow-left"></i></button>
+      <h2>Reservar área comum</h2>
+    </div>
+    <div class="content">
+      <p class="section-title">Escolha a área</p>
+      <div class="area-option selected" id="area-salao" onclick="selectArea('salao')">
+        <div class="qc-icon" style="background:var(--teal-50);font-size:18px;"><i class="ti ti-building-community" style="color:var(--teal-600);"></i></div>
+        <div><h4 style="font-size:13px;font-weight:600;color:var(--text);">Salão de festas</h4><p class="text-small">Até 80 pessoas · 10h–22h</p></div>
+      </div>
+      <div class="area-option" id="area-churras" onclick="selectArea('churras')">
+        <div class="qc-icon" style="background:var(--coral-50);font-size:18px;"><i class="ti ti-flame" style="color:var(--coral-600);"></i></div>
+        <div><h4 style="font-size:13px;font-weight:600;color:var(--text);">Churrasqueira</h4><p class="text-small">Até 30 pessoas · 12h–22h</p></div>
+      </div>
+      <div class="area-option" id="area-piscina" onclick="selectArea('piscina')">
+        <div class="qc-icon" style="background:var(--blue-50);font-size:18px;"><i class="ti ti-ripple" style="color:var(--blue-600);"></i></div>
+        <div><h4 style="font-size:13px;font-weight:600;color:var(--text);">Área da piscina</h4><p class="text-small">Até 20 pessoas · 9h–20h</p></div>
+      </div>
+      <div class="area-option" id="area-jogos" onclick="selectArea('jogos')">
+        <div class="qc-icon" style="background:var(--amber-50);font-size:18px;"><i class="ti ti-device-gamepad-2" style="color:var(--amber-600);"></i></div>
+        <div><h4 style="font-size:13px;font-weight:600;color:var(--text);">Salão de jogos</h4><p class="text-small">Até 15 pessoas · 8h–22h</p></div>
+      </div>
+
+      <p class="section-title" style="margin-top:16px;">Data — maio 2025</p>
+      <div class="card" style="padding:12px;">
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;">
+          <span class="day-label">D</span><span class="day-label">S</span><span class="day-label">T</span><span class="day-label">Q</span><span class="day-label">Q</span><span class="day-label">S</span><span class="day-label">S</span>
+        </div>
+        <div class="date-grid" id="date-grid"></div>
+      </div>
+
+      <p class="section-title">Horário</p>
+      <div class="card" style="padding:12px;">
+        <div class="time-grid">
+          <button class="time-btn unavailable" disabled>10:00</button>
+          <button class="time-btn unavailable" disabled>11:00</button>
+          <button class="time-btn selected" onclick="selectTime(this)">12:00</button>
+          <button class="time-btn" onclick="selectTime(this)">13:00</button>
+          <button class="time-btn" onclick="selectTime(this)">14:00</button>
+          <button class="time-btn unavailable" disabled>15:00</button>
+          <button class="time-btn" onclick="selectTime(this)">16:00</button>
+          <button class="time-btn" onclick="selectTime(this)">17:00</button>
+          <button class="time-btn" onclick="selectTime(this)">18:00</button>
+        </div>
+        <p class="text-small" style="margin-top:8px;"><i class="ti ti-info-circle" style="font-size:13px;vertical-align:-2px;"></i> Cinza = já ocupado</p>
+      </div>
+      <button class="btn btn-primary" onclick="showScreen('reserva-confirm')">Confirmar reserva</button>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="showTab('home')"><i class="ti ti-home"></i><span>Início</span></button>
+      <button class="nav-item active" onclick="showTab('reservas')"><i class="ti ti-calendar"></i><span>Reservas</span></button>
+      <button class="nav-item" onclick="showTab('reunioes')"><i class="ti ti-users"></i><span>Reuniões</span></button>
+      <button class="nav-item" onclick="showTab('assistencia')"><i class="ti ti-tool"></i><span>Suporte</span></button>
+      <button class="nav-item" onclick="showScreen('perfil')"><i class="ti ti-user"></i><span>Perfil</span></button>
+    </div>
+  </div>
+
+  <!-- ===== RESERVA CONFIRMADA ===== -->
+  <div id="screen-reserva-confirm" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('reservas')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Confirmação</h2>
+    </div>
+    <div class="content" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:30px;">
+      <div class="success-icon"><i class="ti ti-check" style="color:var(--teal-600);"></i></div>
+      <h2 style="font-size:20px;font-weight:700;margin-bottom:8px;">Reserva confirmada!</h2>
+      <p class="text-muted" style="line-height:1.6;max-width:280px;">Você receberá confirmação por e-mail. Cancelamento até 24h antes.</p>
+      <div class="confirm-card" style="width:100%;text-align:left;">
+        <div class="confirm-row"><span class="confirm-label">Área</span><span class="confirm-value">Salão de festas</span></div>
+        <div class="confirm-row"><span class="confirm-label">Data</span><span class="confirm-value">20 de maio de 2025</span></div>
+        <div class="confirm-row"><span class="confirm-label">Horário</span><span class="confirm-value">12:00 – 16:00</span></div>
+        <div class="confirm-row" style="margin:0;"><span class="confirm-label">Morador</span><span class="confirm-value" id="confirm-morador">Marco Araújo · Ap 304</span></div>
+      </div>
+      <button class="btn btn-primary" onclick="goHome()">Voltar ao início</button>
+    </div>
+  </div>
+
+  <!-- ===== REUNIÕES ===== -->
+  <div id="screen-reunioes" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="goHome()"><i class="ti ti-arrow-left"></i></button>
+      <h2>Reuniões</h2>
+    </div>
+    <div class="content">
+      <p class="section-title">Próxima reunião</p>
+      <div id="proxima-reuniao">
+      <div style="display:flex;flex-direction:column;align-items:center;padding:28px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);margin-bottom:16px;">
+        <i class="ti ti-calendar-off" style="font-size:32px;color:var(--hint);margin-bottom:10px;"></i>
+        <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhuma reunião agendada</p>
+      </div></div>
+      <p class="section-title">Histórico</p>
+      <div style="display:flex;flex-direction:column;align-items:center;padding:22px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+        <i class="ti ti-clock-off" style="font-size:28px;color:var(--hint);margin-bottom:8px;"></i>
+        <p style="font-size:12px;color:var(--hint);text-align:center;">Nenhuma reunião anterior registrada.</p>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="showTab('home')"><i class="ti ti-home"></i><span>Início</span></button>
+      <button class="nav-item" onclick="showTab('reservas')"><i class="ti ti-calendar"></i><span>Reservas</span></button>
+      <button class="nav-item active" onclick="showTab('reunioes')"><i class="ti ti-users"></i><span>Reuniões</span></button>
+      <button class="nav-item" onclick="showTab('assistencia')"><i class="ti ti-tool"></i><span>Suporte</span></button>
+      <button class="nav-item" onclick="showScreen('perfil')"><i class="ti ti-user"></i><span>Perfil</span></button>
+    </div>
+  </div>
+
+  <!-- ===== ASSISTÊNCIA ===== -->
+  <div id="screen-assistencia" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="goHome()"><i class="ti ti-arrow-left"></i></button>
+      <h2>Assistência & Manutenção</h2>
+    </div>
+    <div class="content">
+      <button class="dashed-btn" onclick="showScreen('novo-chamado')"><i class="ti ti-plus" style="font-size:18px;"></i>Abrir novo chamado</button>
+      <p class="section-title">Meus chamados</p>
+      <div id="chamados-list"><div style="display:flex;flex-direction:column;align-items:center;padding:28px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);"><i class="ti ti-tool-off" style="font-size:32px;color:var(--hint);margin-bottom:10px;"></i><p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhum chamado aberto</p></div></div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="showTab('home')"><i class="ti ti-home"></i><span>Início</span></button>
+      <button class="nav-item" onclick="showTab('reservas')"><i class="ti ti-calendar"></i><span>Reservas</span></button>
+      <button class="nav-item" onclick="showTab('reunioes')"><i class="ti ti-users"></i><span>Reuniões</span></button>
+      <button class="nav-item active" onclick="showTab('assistencia')"><i class="ti ti-tool"></i><span>Suporte</span></button>
+      <button class="nav-item" onclick="showScreen('perfil')"><i class="ti ti-user"></i><span>Perfil</span></button>
+    </div>
+  </div>
+
+  <!-- ===== NOVO CHAMADO ===== -->
+  <div id="screen-novo-chamado" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('assistencia')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Novo chamado</h2>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">Categoria</label>
+          <select>
+            <option>Hidráulica / Vazamento</option>
+            <option>Elétrica / Iluminação</option>
+            <option>Portões / Acesso</option>
+            <option>Elevadores</option>
+            <option>Limpeza / Jardinagem</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Localização</label>
+          <input type="text" placeholder="Ex: Banheiro, Corredor 3º andar...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descrição</label>
+          <textarea placeholder="Descreva o problema com detalhes..."></textarea>
+        </div>
+      </div>
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="toast('Funcionalidade de câmera disponível no app nativo')">
+        <div><p style="font-size:14px;font-weight:600;color:var(--text);">Adicionar foto</p><p class="text-small">Ajuda a entender o problema</p></div>
+        <i class="ti ti-camera" style="font-size:22px;color:var(--muted);"></i>
+      </div>
+      <button class="btn btn-primary" onclick="enviarChamado()">Enviar chamado</button>
+    </div>
+  </div>
+
+  <!-- ===== CHAMADO ENVIADO ===== -->
+  <div id="screen-chamado-enviado" class="screen" style="flex-direction:column;">
+    <div class="detail-header" style="justify-content:center;"><h2>Chamado enviado</h2></div>
+    <div class="content" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:30px;">
+      <div class="success-icon"><i class="ti ti-circle-check" style="color:var(--teal-600);"></i></div>
+      <h2 style="font-size:20px;font-weight:700;margin-bottom:8px;">Chamado #2342 aberto</h2>
+      <p class="text-muted" style="line-height:1.6;max-width:280px;">Nossa equipe foi notificada. Você receberá atualizações sobre o andamento aqui no app.</p>
+      <div class="confirm-card" style="width:100%;text-align:left;">
+        <div class="confirm-row"><span class="confirm-label">Status</span><span class="confirm-value">Aguardando análise</span></div>
+        <div class="confirm-row" style="margin:0;"><span class="confirm-label">Prazo estimado</span><span class="confirm-value">Até 3 dias úteis</span></div>
+      </div>
+      <button class="btn btn-primary" onclick="goHome()">Voltar ao início</button>
+    </div>
+  </div>
+
+  <!-- ===== MURAL ===== -->
+  <div id="screen-mural" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="goHome()"><i class="ti ti-arrow-left"></i></button>
+      <h2>Mural de avisos</h2>
+    </div>
+    <div class="content">
+      <div class="tab-row" style="margin-bottom:14px;">
+        <button class="tab-btn active" onclick="filterMural(this,'all')">Todos</button>
+        <button class="tab-btn" onclick="filterMural(this,'manut')">Manutenção</button>
+        <button class="tab-btn" onclick="filterMural(this,'reuniao')">Reunião</button>
+        <button class="tab-btn" onclick="filterMural(this,'geral')">Geral</button>
+      </div>
+      <div id="mural-list">
+        <div id="mural-empty" style="display:flex;flex-direction:column;align-items:center;padding:36px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+          <i class="ti ti-speakerphone" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
+          <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhum aviso publicado</p>
+          <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:4px;">A administração ainda não publicou nenhum aviso no mural.</p>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="showTab('home')"><i class="ti ti-home"></i><span>Início</span></button>
+      <button class="nav-item" onclick="showTab('reservas')"><i class="ti ti-calendar"></i><span>Reservas</span></button>
+      <button class="nav-item" onclick="showTab('reunioes')"><i class="ti ti-users"></i><span>Reuniões</span></button>
+      <button class="nav-item" onclick="showTab('assistencia')"><i class="ti ti-tool"></i><span>Suporte</span></button>
+      <button class="nav-item" onclick="showScreen('perfil')"><i class="ti ti-user"></i><span>Perfil</span></button>
+    </div>
+  </div>
+
+  <!-- ===== NOTIFICAÇÕES ===== -->
+  <div id="screen-notifs" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="goHome()"><i class="ti ti-arrow-left"></i></button>
+      <h2>Notificações</h2>
+    </div>
+    <div class="content">
+      <div style="display:flex;flex-direction:column;align-items:center;padding:36px 16px;">
+        <i class="ti ti-bell-off" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
+        <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhuma notificação</p>
+        <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:4px;">Suas notificações aparecerão aqui quando houver atualizações.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MULTAS MORADOR ===== -->
+  <div id="screen-multas" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="goHome()"><i class="ti ti-arrow-left"></i></button>
+      <h2>Minhas multas</h2>
+    </div>
+    <div class="content">
+      <div class="tab-row">
+        <button class="tab-btn active" onclick="filterMultas(this,'all')">Todas</button>
+        <button class="tab-btn" onclick="filterMultas(this,'pendente')">Pendentes</button>
+        <button class="tab-btn" onclick="filterMultas(this,'pago')">Pagas</button>
+        <button class="tab-btn" onclick="filterMultas(this,'expirada')">Expiradas</button>
+      </div>
+      <div id="multas-list">
+        <div id="multas-empty" style="display:flex;flex-direction:column;align-items:center;padding:36px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+          <i class="ti ti-receipt-off" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
+          <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhuma multa registrada</p>
+          <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:4px;">Você não possui multas no momento.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== VEÍCULOS MORADOR ===== -->
+  <div id="screen-veiculos" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="goHome()"><i class="ti ti-arrow-left"></i></button>
+      <h2>Meus veículos</h2>
+    </div>
+    <div class="content">
+      <div style="background:var(--teal-50);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;border:0.5px solid var(--teal-100);">
+        <p style="font-size:12px;color:var(--teal-800);"><i class="ti ti-info-circle" style="font-size:14px;vertical-align:-2px;"></i> Limite: <strong id="veiculo-limite">5 veículos</strong> por apartamento</p>
+      </div>
+      <div id="veiculos-list">
+        <div id="veiculos-empty" style="display:flex;flex-direction:column;align-items:center;padding:28px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);margin-bottom:10px;">
+          <i class="ti ti-car-off" style="font-size:32px;color:var(--hint);margin-bottom:10px;"></i>
+          <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhum veículo cadastrado</p>
+          <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:4px;">Adicione seu veículo usando o botão abaixo.</p>
+        </div>
+      </div>
+      <button class="dashed-btn" onclick="showScreen('novo-veiculo')"><i class="ti ti-plus" style="font-size:18px;"></i>Adicionar veículo</button>
+    </div>
+  </div>
+
+  <!-- ===== NOVO VEÍCULO ===== -->
+  <div id="screen-novo-veiculo" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('veiculos')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Novo veículo</h2>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">Marca</label>
+          <input type="text" id="v-marca" placeholder="Ex: Honda">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Modelo</label>
+          <input type="text" id="v-modelo" placeholder="Ex: Civic">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cor</label>
+          <input type="text" id="v-cor" placeholder="Ex: Prata">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Placa</label>
+          <input type="text" id="v-placa" placeholder="Ex: ABC-1234" style="text-transform:uppercase;">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="salvarVeiculo()">Salvar veículo</button>
+    </div>
+  </div>
+
+  <!-- ===== REGRAS ===== -->
+  <div id="screen-regras" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="goHome()"><i class="ti ti-arrow-left"></i></button>
+      <h2>Regras do condomínio</h2>
+    </div>
+    <div class="content">
+      <div class="tab-row">
+        <button class="tab-btn active" onclick="filterRegras(this,'all')">Todas</button>
+        <button class="tab-btn" onclick="filterRegras(this,'piscina')">Piscina</button>
+        <button class="tab-btn" onclick="filterRegras(this,'silencio')">Silêncio</button>
+        <button class="tab-btn" onclick="filterRegras(this,'garagem')">Garagem</button>
+        <button class="tab-btn" onclick="filterRegras(this,'animais')">Animais</button>
+      </div>
+      <div id="regras-list">
+        <div style="display:flex;flex-direction:column;align-items:center;padding:36px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+          <i class="ti ti-book-off" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
+          <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhuma regra publicada</p>
+          <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:4px;">As regras do condomínio serão exibidas aqui quando a administração as cadastrar.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN HOME ===== -->
+  <div id="screen-admin-home" class="screen" style="flex-direction:column;">
+    <div class="top-nav">
+      <div class="top-nav-row">
+        <div>
+          <p style="font-size:12px;opacity:0.75;margin-bottom:2px;">⚙️ Painel administrativo</p>
+          <h1>PredioHub Admin</h1>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="avatar-btn" onclick="doLogout()" aria-label="Sair" title="Sair">AD</button>
+        </div>
+      </div>
+    </div>
+    <div class="content">
+      <p class="section-title">Visão geral</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+        <div class="admin-stat"><div class="num">0</div><div class="lbl">Moradores</div></div>
+        <div class="admin-stat"><div class="num">0</div><div class="lbl">Chamados abertos</div></div>
+        <div class="admin-stat"><div class="num" style="color:var(--red-600);">0</div><div class="lbl">Multas pendentes</div></div>
+        <div class="admin-stat"><div class="num" id="admin-stat-encomendas" style="color:var(--amber-600);">0</div><div class="lbl">Encomendas</div></div>
+      </div>
+      <p class="section-title">Administração</p>
+      <div class="quick-grid">
+        <div class="quick-card" onclick="showScreen('admin-moradores')">
+          <div class="qc-icon" style="background:var(--teal-50);"><i class="ti ti-users" style="color:var(--teal-600);"></i></div>
+          <div class="qc-label">Moradores</div>
+          <div class="qc-sub">Gerenciar contas</div>
+        </div>
+        <div class="quick-card" onclick="showScreen('admin-multas')">
+          <div class="qc-icon" style="background:var(--red-50);"><i class="ti ti-receipt" style="color:var(--red-600);"></i></div>
+          <div class="qc-label">Multas</div>
+          <div class="qc-sub">Aplicar e gerenciar</div>
+        </div>
+        <div class="quick-card" onclick="showScreen('admin-veiculos')">
+          <div class="qc-icon" style="background:var(--gray-50);"><i class="ti ti-car" style="color:var(--gray-600);"></i></div>
+          <div class="qc-label">Veículos</div>
+          <div class="qc-sub">Todos os registros</div>
+        </div>
+        <div class="quick-card" onclick="showScreen('admin-regras')">
+          <div class="qc-icon" style="background:var(--green-50);"><i class="ti ti-book" style="color:var(--green-600);"></i></div>
+          <div class="qc-label">Regras</div>
+          <div class="qc-sub">Criar e editar</div>
+        </div>
+        <div class="quick-card" onclick="showScreen('admin-avisos')">
+          <div class="qc-icon" style="background:var(--amber-50);"><i class="ti ti-news" style="color:var(--amber-600);"></i></div>
+          <div class="qc-label">Avisos</div>
+          <div class="qc-sub">Publicar no mural</div>
+        </div>
+        <div class="quick-card" onclick="showScreen('admin-reunioes')">
+          <div class="qc-icon" style="background:var(--blue-50);"><i class="ti ti-calendar-event" style="color:var(--blue-600);"></i></div>
+          <div class="qc-label">Reuniões</div>
+          <div class="qc-sub">Agendar e gerir</div>
+        </div>
+        <div class="quick-card" onclick="showScreen('admin-config')" style="border:1.5px solid var(--teal-100);background:var(--teal-50);">
+          <div class="qc-icon" style="background:var(--teal-600);"><i class="ti ti-settings" style="color:#fff;"></i></div>
+          <div class="qc-label" style="color:var(--teal-800);">Administração</div>
+          <div class="qc-sub" style="color:var(--teal-600);">Sistema e aparência</div>
+        </div>
+        <div class="quick-card" onclick="showScreen('admin-encomendas')">
+          <div class="qc-icon" style="background:var(--amber-50);"><i class="ti ti-package" style="color:var(--amber-600);"></i></div>
+          <div class="qc-label">Encomendas</div>
+          <div class="qc-sub">Registrar e dar baixa</div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item active" onclick="showScreen('admin-home')"><i class="ti ti-layout-dashboard"></i><span>Painel</span></button>
+      <button class="nav-item" onclick="showScreen('admin-moradores')"><i class="ti ti-users"></i><span>Moradores</span></button>
+      <button class="nav-item" onclick="showScreen('admin-multas')"><i class="ti ti-receipt"></i><span>Multas</span></button>
+      <button class="nav-item" onclick="showScreen('admin-veiculos')"><i class="ti ti-car"></i><span>Veículos</span></button>
+      <button class="nav-item" onclick="showScreen('admin-config')"><i class="ti ti-settings"></i><span>Config.</span></button>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN MORADORES ===== -->
+  <div id="screen-admin-moradores" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('admin-home')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Moradores</h2>
+    </div>
+    <div class="content">
+      <!-- Tabs -->
+      <div class="tab-row" style="margin-bottom:12px;">
+        <button class="tab-btn active" onclick="switchMoradoresTab('lista',this)">Lista</button>
+        <button class="tab-btn" onclick="switchMoradoresTab('cargos',this)">Cargos</button>
+      </div>
+
+      <!-- Tab: Lista -->
+      <div id="tab-moradores-lista">
+        <input type="text" placeholder="🔍 Buscar por nome ou apartamento..." style="margin-bottom:12px;" oninput="filterMoradores(this.value)">
+        <div id="moradores-list">
+          <div style="display:flex;flex-direction:column;align-items:center;padding:36px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+            <i class="ti ti-users-group" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
+            <p style="font-size:13px;font-weight:600;color:var(--muted);">Carregando...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Cargos -->
+      <div id="tab-moradores-cargos" style="display:none;">
+        <button class="dashed-btn" onclick="showScreen('admin-novo-cargo')"><i class="ti ti-plus" style="font-size:18px;"></i> Criar novo cargo</button>
+        <div id="cargos-list"></div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="showScreen('admin-home')"><i class="ti ti-layout-dashboard"></i><span>Painel</span></button>
+      <button class="nav-item active" onclick="showScreen('admin-moradores')"><i class="ti ti-users"></i><span>Moradores</span></button>
+      <button class="nav-item" onclick="showScreen('admin-multas')"><i class="ti ti-receipt"></i><span>Multas</span></button>
+      <button class="nav-item" onclick="showScreen('admin-veiculos')"><i class="ti ti-car"></i><span>Veículos</span></button>
+      <button class="nav-item" onclick="showScreen('admin-config')"><i class="ti ti-settings"></i><span>Config.</span></button>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN DETALHE MORADOR ===== -->
+  <div id="screen-admin-morador-detalhe" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('admin-moradores')"><i class="ti ti-arrow-left"></i></button>
+      <h2 id="detalhe-morador-nome">Morador</h2>
+    </div>
+    <div class="content">
+      <!-- Info -->
+      <div class="card" style="margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <div id="detalhe-avatar" style="width:52px;height:52px;border-radius:50%;background:var(--teal-50);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--teal-800);font-size:18px;"></div>
+          <div>
+            <p id="detalhe-nome" style="font-size:16px;font-weight:700;color:var(--text);"></p>
+            <p id="detalhe-local" style="font-size:12px;color:var(--muted);"></p>
+            <p id="detalhe-email" style="font-size:12px;color:var(--hint);"></p>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <span id="detalhe-cargo-badge" class="badge badge-blue" style="font-size:11px;"></span>
+          <span id="detalhe-status-badge" class="badge" style="font-size:11px;"></span>
+        </div>
+      </div>
+
+      <!-- Cargo -->
+      <p class="section-title">Cargo e permissões</p>
+      <div class="card" style="margin-bottom:10px;">
+        <label class="form-label">Cargo atual</label>
+        <select id="detalhe-cargo-select" style="width:100%;padding:10px;border:0.5px solid var(--border);border-radius:var(--radius-sm);background:var(--card);color:var(--text);font-size:14px;margin-bottom:12px;">
+          <option value="morador">🏠 Morador (sem cargo especial)</option>
+        </select>
+
+        <p class="form-label" style="margin-bottom:8px;">Permissões individuais</p>
+        <div id="detalhe-perms-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;"></div>
+
+        <button class="btn btn-primary" onclick="salvarPermissoesMorador()">Salvar permissões</button>
+      </div>
+
+      <!-- Ações -->
+      <p class="section-title">Ações</p>
+      <div class="card">
+        <button id="btn-toggle-bloqueio" class="btn btn-danger" style="width:100%;margin-bottom:8px;" onclick="toggleBloqueioDetalhe()">
+          <i class="ti ti-lock"></i> Bloquear acesso
+        </button>
+        <button class="btn btn-ghost" style="width:100%;color:var(--coral-600);border-color:var(--coral-600);" onclick="confirmarRemoverMorador()">
+          <i class="ti ti-trash"></i> Remover morador
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN NOVO CARGO ===== -->
+  <div id="screen-admin-novo-cargo" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('admin-moradores')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Criar cargo</h2>
+    </div>
+    <div class="content">
+      <div class="card" style="margin-bottom:10px;">
+        <div class="form-group">
+          <label class="form-label">Nome do cargo</label>
+          <input type="text" id="novo-cargo-nome" placeholder="Ex: Zelador, Conselheiro...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descrição</label>
+          <input type="text" id="novo-cargo-desc" placeholder="Descreva as responsabilidades...">
+        </div>
+      </div>
+      <p class="section-title">Permissões do cargo</p>
+      <div class="card" style="margin-bottom:10px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="novo-cargo-perms">
+          <label class="perm-toggle"><input type="checkbox" name="perm" value="moradores"> <span>👥 Moradores</span></label>
+          <label class="perm-toggle"><input type="checkbox" name="perm" value="multas"> <span>📋 Multas</span></label>
+          <label class="perm-toggle"><input type="checkbox" name="perm" value="encomendas"> <span>📦 Encomendas</span></label>
+          <label class="perm-toggle"><input type="checkbox" name="perm" value="avisos"> <span>📢 Avisos</span></label>
+          <label class="perm-toggle"><input type="checkbox" name="perm" value="reunioes"> <span>👔 Reuniões</span></label>
+          <label class="perm-toggle"><input type="checkbox" name="perm" value="veiculos"> <span>🚗 Veículos</span></label>
+          <label class="perm-toggle"><input type="checkbox" name="perm" value="financeiro"> <span>💰 Financeiro</span></label>
+          <label class="perm-toggle"><input type="checkbox" name="perm" value="config"> <span>⚙️ Config.</span></label>
+        </div>
+        <div style="margin-top:12px;padding-top:12px;border-top:0.5px solid var(--border);">
+          <label class="perm-toggle" style="display:flex;align-items:center;gap:8px;">
+            <input type="checkbox" id="perm-tudo" onchange="toggleTudoNovoCargo(this)"> 
+            <span style="font-weight:700;color:var(--teal-800);">🔑 Acesso total (Síndico)</span>
+          </label>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="criarCargo()">Criar cargo</button>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN MULTAS ===== -->
+  <div id="screen-admin-multas" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('admin-home')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Gestão de multas</h2>
+    </div>
+    <div class="content">
+      <button class="dashed-btn" onclick="showScreen('admin-nova-multa')"><i class="ti ti-plus" style="font-size:18px;"></i>Aplicar nova multa</button>
+      <div class="tab-row">
+        <button class="tab-btn active" onclick="filterAdminMultas(this,'all')">Todas</button>
+        <button class="tab-btn" onclick="filterAdminMultas(this,'pendente')">Pendentes</button>
+        <button class="tab-btn" onclick="filterAdminMultas(this,'pago')">Pagas</button>
+        <button class="tab-btn" onclick="filterAdminMultas(this,'expirada')">Expiradas</button>
+      </div>
+      <div id="admin-multas-list">
+        <div style="display:flex;flex-direction:column;align-items:center;padding:36px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+          <i class="ti ti-receipt-off" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
+          <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhuma multa registrada</p>
+          <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:4px;">Aplique uma multa usando o botão acima.</p>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="showScreen('admin-home')"><i class="ti ti-layout-dashboard"></i><span>Painel</span></button>
+      <button class="nav-item" onclick="showScreen('admin-moradores')"><i class="ti ti-users"></i><span>Moradores</span></button>
+      <button class="nav-item active" onclick="showScreen('admin-multas')"><i class="ti ti-receipt"></i><span>Multas</span></button>
+      <button class="nav-item" onclick="showScreen('admin-veiculos')"><i class="ti ti-car"></i><span>Veículos</span></button>
+      <button class="nav-item" onclick="showScreen('admin-config')"><i class="ti ti-settings"></i><span>Config.</span></button>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN NOVA MULTA ===== -->
+  <div id="screen-admin-nova-multa" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('admin-multas')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Aplicar multa</h2>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">Morador</label>
+          <select id="multa-morador"><option value="">Selecione o morador...</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Motivo</label>
+          <input type="text" id="multa-motivo" placeholder="Ex: Barulho fora do horário">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="form-group">
+            <label class="form-label">Valor (R$)</label>
+            <input type="number" id="multa-valor" placeholder="0,00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Prazo</label>
+            <input type="date" id="multa-prazo">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descrição / Evidências</label>
+          <textarea id="multa-desc" placeholder="Descreva o ocorrido com detalhes..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Método de pagamento</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div style="border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center;cursor:pointer;background:var(--teal-50);border-color:var(--teal-600);">
+              <p style="font-size:22px;margin-bottom:4px;">🔑</p>
+              <p style="font-size:13px;font-weight:600;color:var(--teal-800);">PIX</p>
+              <p style="font-size:10px;color:var(--teal-600);">Chave: 00.000.000/0001</p>
+            </div>
+            <div style="border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center;cursor:pointer;">
+              <p style="font-size:22px;margin-bottom:4px;">📄</p>
+              <p style="font-size:13px;font-weight:600;color:var(--text);">Boleto</p>
+              <p style="font-size:10px;color:var(--muted);">Gerado automaticamente</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="salvarMulta()">Aplicar multa</button>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN VEÍCULOS ===== -->
+  <div id="screen-admin-veiculos" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('admin-home')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Veículos cadastrados</h2>
+    </div>
+    <div class="content">
+      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;">
+        <input type="text" placeholder="🔍 Buscar por placa, morador..." style="flex:1;margin-bottom:0;">
+        <button class="btn btn-secondary" style="padding:10px;font-size:12px;white-space:nowrap;" onclick="showLimiteModal()"><i class="ti ti-settings" style="font-size:14px;"></i> Limite</button>
+      </div>
+      <div class="tab-row">
+        <button class="tab-btn active" onclick="filterAdminVeiculos(this,'all')">Todos</button>
+        <button class="tab-btn" onclick="filterAdminVeiculos(this,'A')">Bloco A</button>
+        <button class="tab-btn" onclick="filterAdminVeiculos(this,'B')">Bloco B</button>
+      </div>
+      <div id="admin-veiculos-list">
+        <div style="display:flex;flex-direction:column;align-items:center;padding:36px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+          <i class="ti ti-car-off" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
+          <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhum veículo cadastrado</p>
+          <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:4px;">Os moradores podem cadastrar veículos pela aba Veículos.</p>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="showScreen('admin-home')"><i class="ti ti-layout-dashboard"></i><span>Painel</span></button>
+      <button class="nav-item" onclick="showScreen('admin-moradores')"><i class="ti ti-users"></i><span>Moradores</span></button>
+      <button class="nav-item" onclick="showScreen('admin-multas')"><i class="ti ti-receipt"></i><span>Multas</span></button>
+      <button class="nav-item active" onclick="showScreen('admin-veiculos')"><i class="ti ti-car"></i><span>Veículos</span></button>
+      <button class="nav-item" onclick="showScreen('admin-config')"><i class="ti ti-settings"></i><span>Config.</span></button>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN CONFIG ===== -->
+  <div id="screen-admin-config" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('admin-home')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Administração do sistema</h2>
+    </div>
+    <div class="content">
+
+      <!-- IDENTIDADE DO CONDOMÍNIO -->
+      <p class="section-title">Identidade do condomínio</p>
+      <div class="card">
+        <!-- Logo Upload -->
+        <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:16px;">
+          <div id="condo-logo-wrap" style="width:80px;height:80px;border-radius:20px;background:var(--teal-600);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;margin-bottom:8px;overflow:hidden;" onclick="document.getElementById('logo-upload').click()">
+            <i class="ti ti-building-community" id="condo-logo-icon" style="font-size:36px;color:#fff;"></i>
+            <img id="condo-logo-img" src="" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;">
+            <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.45);padding:4px;text-align:center;">
+              <i class="ti ti-camera" style="font-size:13px;color:#fff;"></i>
+            </div>
+          </div>
+          <input type="file" id="logo-upload" accept="image/*" style="display:none;" onchange="uploadLogo(this)">
+          <p style="font-size:11px;color:var(--hint);">Toque para alterar a logo</p>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Nome do condomínio</label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="config-condo-nome" value="Condomínio" style="flex:1;margin-bottom:0;">
+            <button class="btn btn-primary" style="width:auto;padding:10px 14px;font-size:13px;" onclick="salvarNomeCondo()"><i class="ti ti-check" style="font-size:15px;"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- COR DO TEMA -->
+      <p class="section-title">Cor do tema</p>
+      <div class="card">
+        <p class="form-label" style="margin-bottom:10px;">Cores predefinidas</p>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px;" id="preset-colors">
+          <button class="color-swatch selected" data-color="#0F6E56" data-light="#E1F5EE" data-dark="#085041" onclick="selectPresetColor(this)" style="background:#0F6E56;" title="Verde teal (padrão)"></button>
+          <button class="color-swatch" data-color="#185FA5" data-light="#E6F1FB" data-dark="#0C447C" onclick="selectPresetColor(this)" style="background:#185FA5;" title="Azul"></button>
+          <button class="color-swatch" data-color="#7C3AED" data-light="#EDE9FE" data-dark="#4C1D95" onclick="selectPresetColor(this)" style="background:#7C3AED;" title="Roxo"></button>
+          <button class="color-swatch" data-color="#B91C1C" data-light="#FEE2E2" data-dark="#7F1D1D" onclick="selectPresetColor(this)" style="background:#B91C1C;" title="Vermelho"></button>
+          <button class="color-swatch" data-color="#D97706" data-light="#FEF3C7" data-dark="#92400E" onclick="selectPresetColor(this)" style="background:#D97706;" title="Âmbar"></button>
+          <button class="color-swatch" data-color="#0E7490" data-light="#CFFAFE" data-dark="#164E63" onclick="selectPresetColor(this)" style="background:#0E7490;" title="Ciano"></button>
+          <button class="color-swatch" data-color="#BE185D" data-light="#FCE7F3" data-dark="#831843" onclick="selectPresetColor(this)" style="background:#BE185D;" title="Rosa"></button>
+          <button class="color-swatch" data-color="#065F46" data-light="#D1FAE5" data-dark="#022C22" onclick="selectPresetColor(this)" style="background:#065F46;" title="Verde escuro"></button>
+          <button class="color-swatch" data-color="#374151" data-light="#F3F4F6" data-dark="#111827" onclick="selectPresetColor(this)" style="background:#374151;" title="Cinza slate"></button>
+          <button class="color-swatch" data-color="#C2410C" data-light="#FFEDD5" data-dark="#7C2D12" onclick="selectPresetColor(this)" style="background:#C2410C;" title="Laranja"></button>
+        </div>
+        <p class="form-label" style="margin-bottom:8px;">Cor personalizada</p>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <div style="position:relative;width:48px;height:44px;border-radius:var(--radius-sm);overflow:hidden;border:0.5px solid var(--border);cursor:pointer;flex-shrink:0;">
+            <input type="color" id="custom-color-pick" value="#0F6E56" style="width:200%;height:200%;border:none;padding:0;cursor:pointer;position:absolute;top:-25%;left:-25%;background:none;" oninput="previewCustomColor(this.value)" onchange="applyCustomColor(this.value)">
+          </div>
+          <div style="flex:1;">
+            <input type="text" id="custom-color-hex" value="#0F6E56" placeholder="#000000" style="margin-bottom:0;font-family:monospace;font-size:14px;" oninput="hexInputChange(this.value)">
+          </div>
+          <button class="btn btn-primary" style="width:auto;padding:10px 14px;font-size:13px;" onclick="applyCustomColor(document.getElementById('custom-color-hex').value)"><i class="ti ti-palette" style="font-size:15px;"></i></button>
+        </div>
+        <div style="margin-top:14px;padding:12px;border-radius:var(--radius-sm);background:var(--theme-preview, #0F6E56);display:flex;align-items:center;justify-content:space-between;" id="theme-preview-bar">
+          <span style="color:#fff;font-size:13px;font-weight:600;" id="theme-preview-name">Condomínio</span>
+          <div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;"><i class="ti ti-building-community" style="color:#fff;font-size:14px;"></i></div>
+        </div>
+      </div>
+
+      <!-- ADMINISTRADORES -->
+      <p class="section-title">Administradores</p>
+      <div id="admins-list">
+        <div class="card" style="margin-bottom:10px;">
+          <div class="row-between">
+            <div class="row">
+              <div style="width:36px;height:36px;border-radius:50%;background:var(--teal-600);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:13px;">AD</div>
+              <div>
+                <p style="font-size:14px;font-weight:600;color:var(--text);">Administrador Principal</p>
+                <p class="text-small">admin@condo.com</p>
+              </div>
+            </div>
+            <span class="badge" style="background:var(--teal-50);color:var(--teal-800);">Super Admin</span>
+          </div>
+          <hr class="divider">
+          <p class="form-label" style="margin-bottom:8px;">Permissões</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" checked disabled style="width:auto;margin:0;"> Moradores</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" checked disabled style="width:auto;margin:0;"> Multas</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" checked disabled style="width:auto;margin:0;"> Veículos</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" checked disabled style="width:auto;margin:0;"> Regras</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" checked disabled style="width:auto;margin:0;"> Avisos</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" checked disabled style="width:auto;margin:0;"> Configurações</label>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:10px;" id="admin-gestor-card">
+          <div class="row-between">
+            <div class="row">
+              <div style="width:36px;height:36px;border-radius:50%;background:var(--blue-50);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--blue-800);font-size:13px;">GS</div>
+              <div>
+                <p style="font-size:14px;font-weight:600;color:var(--text);">Gestor Suporte</p>
+                <p class="text-small">suporte@condo.com</p>
+              </div>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-ghost" style="padding:5px 8px;" onclick="toast('Editar administrador')"><i class="ti ti-edit" style="font-size:14px;"></i></button>
+              <button class="btn btn-danger" style="padding:5px 8px;" onclick="confirmarExclusao('administrador')"><i class="ti ti-trash" style="font-size:14px;"></i></button>
+            </div>
+          </div>
+          <hr class="divider">
+          <p class="form-label" style="margin-bottom:8px;">Permissões</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;" id="perm-gestor">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" checked onchange="updatePerm(this)" style="width:auto;margin:0;"> Moradores</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" onchange="updatePerm(this)" style="width:auto;margin:0;"> Multas</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" checked onchange="updatePerm(this)" style="width:auto;margin:0;"> Veículos</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" onchange="updatePerm(this)" style="width:auto;margin:0;"> Regras</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" checked onchange="updatePerm(this)" style="width:auto;margin:0;"> Avisos</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;"><input type="checkbox" onchange="updatePerm(this)" style="width:auto;margin:0;"> Configurações</label>
+          </div>
+        </div>
+      </div>
+      <button class="dashed-btn" onclick="showScreen('admin-novo-admin')"><i class="ti ti-plus" style="font-size:18px;"></i>Adicionar administrador</button>
+
+      <!-- OUTROS -->
+      <p class="section-title">Sistema</p>
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="doLogout()">
+        <div><p style="font-size:14px;font-weight:600;color:var(--red-600);">Sair da conta admin</p><p class="text-small">Encerrar sessão atual</p></div>
+        <i class="ti ti-logout" style="font-size:20px;color:var(--red-600);"></i>
+      </div>
+      <div style="height:20px;"></div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="showScreen('admin-home')"><i class="ti ti-layout-dashboard"></i><span>Painel</span></button>
+      <button class="nav-item" onclick="showScreen('admin-moradores')"><i class="ti ti-users"></i><span>Moradores</span></button>
+      <button class="nav-item" onclick="showScreen('admin-multas')"><i class="ti ti-receipt"></i><span>Multas</span></button>
+      <button class="nav-item" onclick="showScreen('admin-veiculos')"><i class="ti ti-car"></i><span>Veículos</span></button>
+      <button class="nav-item active" onclick="showScreen('admin-config')"><i class="ti ti-settings"></i><span>Config.</span></button>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN NOVO ADMINISTRADOR ===== -->
+  <div id="screen-admin-novo-admin" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('admin-config')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Novo administrador</h2>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">Nome completo</label>
+          <input type="text" id="nadm-nome" placeholder="Nome do administrador">
+        </div>
+        <div class="form-group">
+          <label class="form-label">E-mail</label>
+          <input type="email" id="nadm-email" placeholder="email@condo.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Senha</label>
+          <input type="password" id="nadm-senha" placeholder="Mínimo 6 caracteres">
+        </div>
+      </div>
+      <div class="card">
+        <p class="form-label" style="margin-bottom:10px;">Permissões de acesso</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="new-admin-perms">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;padding:8px;border:0.5px solid var(--border);border-radius:var(--radius-sm);"><input type="checkbox" style="width:auto;margin:0;"> Moradores</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;padding:8px;border:0.5px solid var(--border);border-radius:var(--radius-sm);"><input type="checkbox" style="width:auto;margin:0;"> Multas</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;padding:8px;border:0.5px solid var(--border);border-radius:var(--radius-sm);"><input type="checkbox" style="width:auto;margin:0;"> Veículos</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;padding:8px;border:0.5px solid var(--border);border-radius:var(--radius-sm);"><input type="checkbox" style="width:auto;margin:0;"> Regras</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;padding:8px;border:0.5px solid var(--border);border-radius:var(--radius-sm);"><input type="checkbox" style="width:auto;margin:0;"> Avisos</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;padding:8px;border:0.5px solid var(--border);border-radius:var(--radius-sm);"><input type="checkbox" style="width:auto;margin:0;"> Reuniões</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;padding:8px;border:0.5px solid var(--border);border-radius:var(--radius-sm);"><input type="checkbox" style="width:auto;margin:0;"> Configurações</label>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="salvarNovoAdmin()">Criar administrador</button>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN REGRAS ===== -->
+  <div id="screen-admin-regras" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('admin-home')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Gerenciar regras</h2>
+    </div>
+    <div class="content">
+      <button class="dashed-btn" onclick="showScreen('admin-nova-regra')"><i class="ti ti-plus" style="font-size:18px;"></i>Nova regra</button>
+      <div id="regras-admin-list">
+        <div style="display:flex;flex-direction:column;align-items:center;padding:36px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+          <i class="ti ti-book-off" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
+          <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhuma regra cadastrada</p>
+          <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:4px;">Crie regras usando o botão acima.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN NOVA REGRA ===== -->
+  <div id="screen-admin-nova-regra" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('admin-regras')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Nova regra</h2>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">Categoria</label>
+          <select>
+            <option>Piscina</option>
+            <option>Academia</option>
+            <option>Silêncio</option>
+            <option>Garagem</option>
+            <option>Animais</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Título</label>
+          <input type="text" placeholder="Ex: Uso da piscina">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descrição</label>
+          <textarea style="height:100px;" placeholder="Descreva a regra com detalhes..."></textarea>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="toast('Regra salva com sucesso!');showScreen(\'admin-regras\')">Salvar regra</button>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN AVISOS ===== -->
+  <div id="screen-admin-avisos" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('admin-home')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Publicar aviso</h2>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">Categoria</label>
+          <select id="aviso-cat">
+            <option value="manutencao">Manutenção</option>
+            <option value="reuniao">Reunião</option>
+            <option value="geral">Geral</option>
+            <option value="urgente">Urgente</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Título</label>
+          <input type="text" id="aviso-titulo" placeholder="Título do aviso">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Conteúdo</label>
+          <textarea id="aviso-conteudo" style="height:100px;" placeholder="Escreva o aviso completo..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Destino</label>
+          <select>
+            <option>Todos os moradores</option>
+            <option>Bloco A</option>
+            <option>Bloco B</option>
+            <option>Bloco C</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="publicarAviso()">Publicar aviso</button>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN REUNIÕES ===== -->
+  <div id="screen-admin-reunioes" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('admin-home')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Gerenciar reuniões</h2>
+    </div>
+    <div class="content">
+      <button class="dashed-btn" onclick="showNovaReuniaoForm()"><i class="ti ti-plus" style="font-size:18px;"></i>Agendar reunião</button>
+      <div style="display:flex;flex-direction:column;align-items:center;padding:36px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+        <i class="ti ti-calendar-off" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
+        <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhuma reunião agendada</p>
+        <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:4px;">Agende uma assembleia usando o botão acima.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== VERIFICAR EMAIL ===== -->
+  <div id="screen-verificar-email" class="screen" style="flex-direction:column;">
+    <div class="login-wrap" style="justify-content:center;">
+      <div style="width:72px;height:72px;border-radius:20px;background:var(--teal-50);display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:20px;">📧</div>
+      <h2 style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;text-align:center;">Confirme seu e-mail</h2>
+      <p style="font-size:13px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:6px;">Enviamos um link de confirmação para:</p>
+      <p id="verif-email-txt" style="font-size:14px;font-weight:700;color:var(--teal-600);text-align:center;margin-bottom:20px;word-break:break-all;"></p>
+      <p style="font-size:12px;color:var(--hint);text-align:center;line-height:1.6;margin-bottom:24px;">Clique no link do e-mail para ativar sua conta. Depois volte aqui e faça login.</p>
+      <div style="width:100%;display:flex;flex-direction:column;gap:8px;">
+        <button class="btn btn-primary" onclick="showScreen('login')">Ir para o login</button>
+        <button class="btn btn-ghost" style="width:100%;justify-content:center;" onclick="reenviarEmail()">Reenviar e-mail</button>
+      </div>
+      <p style="font-size:11px;color:var(--hint);text-align:center;margin-top:16px;">Não recebeu? Verifique sua caixa de spam.</p>
+    </div>
+  </div>
+
+  <!-- ===== ENCOMENDAS MORADOR ===== -->
+  <div id="screen-encomendas" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showTab('home')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Minhas Encomendas</h2>
+    </div>
+    <div class="content">
+      <div id="enc-morador-pendentes"></div>
+      <p class="section-title" style="margin-top:8px;">Retiradas</p>
+      <div id="enc-morador-retiradas"></div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="showTab('home')"><i class="ti ti-home"></i><span>Início</span></button>
+      <button class="nav-item" onclick="showTab('reservas')"><i class="ti ti-calendar"></i><span>Reservas</span></button>
+      <button class="nav-item" onclick="showTab('reunioes')"><i class="ti ti-users"></i><span>Reuniões</span></button>
+      <button class="nav-item" onclick="showTab('assistencia')"><i class="ti ti-tool"></i><span>Suporte</span></button>
+      <button class="nav-item active" onclick="showScreen('encomendas')"><i class="ti ti-package"></i><span>Encomendas</span></button>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN ENCOMENDAS ===== -->
+  <div id="screen-admin-encomendas" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('admin-home')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Encomendas</h2>
+      <button onclick="showScreen('admin-nova-encomenda')" style="margin-left:auto;background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:var(--radius-sm);padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;"><i class="ti ti-plus" style="font-size:14px;"></i> Registrar</button>
+    </div>
+    <div class="content">
+      <div style="display:flex;gap:6px;margin-bottom:14px;">
+        <button onclick="filtrarEncomendas('aguardando',this)" id="enc-filter-aguardando" style="background:var(--teal-600);color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;">Aguardando</button>
+        <button onclick="filtrarEncomendas('retirado',this)" id="enc-filter-retirado" style="background:var(--card);color:var(--muted);border:0.5px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;">Retiradas</button>
+      </div>
+      <div id="enc-admin-lista"></div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="showScreen('admin-home')"><i class="ti ti-layout-dashboard"></i><span>Painel</span></button>
+      <button class="nav-item" onclick="showScreen('admin-moradores')"><i class="ti ti-users"></i><span>Moradores</span></button>
+      <button class="nav-item active" onclick="showScreen('admin-encomendas')"><i class="ti ti-package"></i><span>Encomendas</span></button>
+      <button class="nav-item" onclick="showScreen('admin-multas')"><i class="ti ti-receipt"></i><span>Multas</span></button>
+      <button class="nav-item" onclick="showScreen('admin-config')"><i class="ti ti-settings"></i><span>Config.</span></button>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN NOVA ENCOMENDA ===== -->
+  <div id="screen-admin-nova-encomenda" class="screen" style="flex-direction:column;">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('admin-encomendas')"><i class="ti ti-arrow-left"></i></button>
+      <h2>Registrar encomenda</h2>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">Morador destinatário</label>
+          <select id="enc-morador-select" style="width:100%;padding:10px;border:0.5px solid var(--border);border-radius:var(--radius-sm);background:var(--card);color:var(--text);font-size:14px;">
+            <option value="">Selecione o morador...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Remetente / Transportadora</label>
+          <input type="text" id="enc-remetente" placeholder="Ex: Amazon, Correios, Shopee...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descrição (opcional)</label>
+          <input type="text" id="enc-descricao" placeholder="Ex: Caixa grande, envelope...">
+        </div>
+        <p style="font-size:12px;color:var(--hint);margin-top:4px;"><i class="ti ti-clock" style="font-size:13px;vertical-align:-2px;"></i> Horário de chegada será registrado automaticamente</p>
+      </div>
+      <button class="btn btn-primary" onclick="registrarEncomenda()">Registrar encomenda</button>
+    </div>
+  </div>
+
+  <!-- ===== MODAL OVERLAY ===== -->
+  <div id="modal" class="modal-overlay" style="display:none;" onclick="closeModal(event)">
+    <div class="modal-box" id="modal-box" onclick="event.stopPropagation()">
+      <p class="modal-title" id="modal-title">Confirmação</p>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <!-- ===== TOAST ===== -->
+  <div id="toast" style="position:absolute;bottom:80px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:10px 18px;border-radius:var(--radius-md);font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:opacity 0.2s;white-space:nowrap;z-index:200;max-width:90%;text-align:center;"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ===== SUPABASE =====
+const SUPA_URL = 'https://avmwipevraagaeyulfom.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2bXdpcGV2cmFhZ2FleXVsZm9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NzEyNDgsImV4cCI6MjA5NDU0NzI0OH0.09zR8EQ4-mAM9rG9XFITREjlzImo2_DQiTk1oaax04U';
+const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+const PREDIOHUB_LOGO = 'data:image/png;base64,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v51fY5hsf6LWTZLLE8uwCqiSKgQETCeUiiFzahmbe6oAGK4ig4iGhoZePXPmE0888cKLL+4/d+6CBQt22WWXl1at+sUvbnryqcUvvbTq3HPPveaaa6ZNnQYAQ0OTdth++7Xr1j751FPzDjropJNOardbo6Njc+bMIaLPfOYzt932qylTphx22OGnnHLK4ODgn//855tvuXnlypXnn3/+ddddt//+B+R5BgAXf/rTd91119Dg4MxXzzzppJN33XXX9evX//rXv773nnuGhidNGh7Oq73BwcGh4UnDIhEAkCRi3bp155933tIlS/r7+9947LFHveENfX19jzzyyI033rh6zerzzjvvZ9ffcMBr9y+sMqSN59esXbL0uQMPPvyMeUcM9PXd9fSfb370D9no2AU/+fYx+x88dWBI5nLSQH9r0qSGQixVKP6+tJFMmTw4ZXLXyRLQ19yK8P1f3dA3Zer73/Ku179mz01jW3963533Pf3o0tF17/jeFQs/9fXBvn4CEG5w0V8EoM4G809SLgEwVIuJkUCqPwWoW/yn+sU2+rGulcuciMbHx0888U2777777rvvfvrpp7+06qUyyBpvtS6++OJ99pmz0047/usVVxS/vPjii2fNmrXXXnu+4x3vWLt2LSk/v/3tb1/zml122232l750ufr7p59+ev78+TvssMO555xb/ObOO++cPXv23nvv/fennvrSS8odx8cvuuii2bN3nTNnzqGHHrp69WoiWr58+UEHHbTzzjt997vfLT52+eWX77TjjvvsM+db3/qWeqNf/epXc+bMmTVr1rvf/e4sz4non6/9Hrz1CHjPG9981We3tsbLT577/X+Ddx8LHzj+2gfvI6Jlf1017ZzT4MxDrrr9fwvuyYJki4h+8Ls74J1vGHjvmx5Z9iwRXbPwLnjXMckHTp76/pPvfPiP5QWllOf88N/gH0+EMw779m03lhchSRS3jUTsLyn2l/pfBRdBqk206PCgYrwsvZWenGnCLMvb7XZ/f/+Xv/yVGdvPaLVaWTtrtVrNRuOSSy/Zfocd0zS99777xkbHAKDdbmVZJiVddNFF06ZNGx8fz7Ks1WoDwK233tpqtXbZZZcLL7wIAFqtVp5l7XZ7jz32eO/ZZ/f1Nf/04J9WrFgBADfccMP4+Hiapl+64ooZM2a0Wq08z9utdrPZ/OIXv7j7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';
+// ===== STATE =====
+const STATE = {
+  currentUser: null,
+  isAdmin: false,
+  condominioId: null,
+  limiteVeiculos: 5
+};
+
+// ===== SCREENS =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => { s.style.display='none'; s.classList.remove('active'); });
+  const el = document.getElementById('screen-'+id);
+  if (el) { el.style.display='flex'; el.classList.add('active'); }
+  closeModal({target:null, forced:true});
+  // Carregar dados ao navegar
+  if (id==='mural') carregarMural();
+  if (id==='reunioes') carregarReunioes();
+  if (id==='assistencia') carregarChamados();
+  if (id==='veiculos') carregarVeiculos();
+  if (id==='multas') carregarMultas();
+  if (id==='regras') carregarRegras();
+  if (id==='admin-home') carregarDashboardAdmin();
+  if (id==='admin-moradores') carregarMoradoresAdmin();
+  if (id==='admin-multas') carregarMultasAdmin();
+  if (id==='admin-veiculos') carregarVeiculosAdmin();
+  if (id==='admin-regras') carregarRegras();
+  if (id==='admin-nova-multa') preencherSelectMoradores();
+}
+
+function goHome() {
+  if (STATE.isAdmin) showScreen('admin-home');
+  else showScreen('home');
+}
+
+function showTab(tab) {
+  const map = {home:'home', reservas:'reservas', reunioes:'reunioes', assistencia:'assistencia'};
+  showScreen(map[tab] || tab);
+}
+
+// ===== AUTH =====
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const senha = document.getElementById('login-senha').value;
+  if (!email||!senha) { toast('Preencha e-mail e senha'); return; }
+  setLoading('btn-login', true, 'Entrando...');
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
+  if (error) {
+    const msg = error.message.includes('Invalid') ? 'E-mail ou senha incorretos' :
+                error.message.includes('Email not confirmed') ? 'Confirme seu e-mail antes de entrar' :
+                'Erro ao entrar: ' + error.message;
+    toast(msg);
+    setLoading('btn-login', false, 'Entrar');
+    return;
+  }
+  await carregarUsuario(data.user);
+}
+
+let _carregando = false;
+async function carregarUsuario(authUser) {
+  if (_carregando) return;
+  _carregando = true;
+  try {
+    const { data: perfil, error } = await sb.from('usuarios').select('*').eq('id', authUser.id).single();
+
+    // Se não encontrou perfil, criar automaticamente
+    if (error || !perfil) {
+      const { data: condo } = await sb.from('condominios').select('id').limit(1).single();
+      const condoId = condo ? condo.id : null;
+      const nome = authUser.user_metadata?.nome || authUser.email.split('@')[0];
+      await sb.from('usuarios').upsert({
+        id: authUser.id, nome, email: authUser.email,
+        role: 'morador', condominio_id: condoId, bloqueado: false
+      }, { onConflict: 'id' });
+      // Buscar de novo após criar
+      const { data: perfilNovo } = await sb.from('usuarios').select('*').eq('id', authUser.id).single();
+      if (!perfilNovo) { toast('Erro ao carregar perfil. Tente novamente.'); setLoading('btn-login', false, 'Entrar'); return; }
+      STATE.currentUser = perfilNovo;
+      STATE.isAdmin = false;
+      STATE.condominioId = condoId;
+      updateHomeUI();
+      showScreen('home');
+      carregarMural();
+      carregarReunioes();
+      carregarEncomendasMorador();
+      setLoading('btn-login', false, 'Entrar');
+      return;
+    }
+
+    if (perfil.bloqueado) { await sb.auth.signOut(); showScreen('bloqueado'); return; }
+
+    STATE.currentUser = perfil;
+    STATE.isAdmin = perfil.role === 'admin';
+    STATE.condominioId = perfil.condominio_id;
+
+    if (STATE.isAdmin) {
+      showScreen('admin-home');
+      carregarDashboardAdmin();
+    } else {
+      updateHomeUI();
+      showScreen('home');
+      carregarMural();
+      carregarReunioes();
+      carregarEncomendasMorador();
+    }
+    setLoading('btn-login', false, 'Entrar');
+  } catch(e) {
+    console.error('Erro carregarUsuario:', e);
+    toast('Erro ao carregar dados. Tente novamente.');
+    setLoading('btn-login', false, 'Entrar');
+  } finally {
+    _carregando = false;
+  }
+}
+
+async function doCadastro() {
+  const nome = document.getElementById('cad-nome').value.trim();
+  const email = document.getElementById('cad-email').value.trim();
+  const senha = document.getElementById('cad-senha').value;
+  const bloco = document.getElementById('cad-bloco').value;
+  const apto = document.getElementById('cad-apto').value.trim();
+  const tel = document.getElementById('cad-tel').value.trim();
+  if (!nome||!email||!senha||!apto) { toast('Preencha todos os campos obrigatórios'); return; }
+  if (senha.length < 6) { toast('Senha deve ter pelo menos 6 caracteres'); return; }
+  setLoading('btn-cadastro', true, 'Criando conta...');
+
+  const { data, error } = await sb.auth.signUp({ email, password: senha, options: { data: { nome, telefone: tel, bloco, apartamento: apto, role: 'morador' } } });
+  if (error) {
+    const msg = error.message.includes('already registered') ? 'Este e-mail já está cadastrado' : 'Erro: ' + error.message;
+    toast(msg);
+    setLoading('btn-cadastro', false, 'Criar conta');
+    return;
+  }
+
+  // Buscar condomínio padrão
+  const { data: condo } = await sb.from('condominios').select('id').limit(1).single();
+  const condoId = condo ? condo.id : null;
+
+  // Inserir perfil na tabela usuarios
+  const { error: perfilError } = await sb.from('usuarios').insert({
+    id: data.user.id, nome, email, telefone: tel,
+    bloco, apartamento: apto, role: 'morador',
+    condominio_id: condoId, bloqueado: false
+  });
+
+  if (perfilError) {
+    // Perfil já pode ter sido criado por trigger — tentar upsert
+    await sb.from('usuarios').upsert({
+      id: data.user.id, nome, email, telefone: tel,
+      bloco, apartamento: apto, role: 'morador',
+      condominio_id: condoId, bloqueado: false
+    }, { onConflict: 'id' });
+  }
+
+  setLoading('btn-cadastro', false, 'Criar conta');
+
+  // Se a sessão já está ativa (confirmação de e-mail desabilitada no Supabase), logar direto
+  if (data.session) {
+    await carregarUsuario(data.user);
+  } else {
+    // Mostrar tela de confirmação de e-mail
+    showScreen('verificar-email');
+    document.getElementById('verif-email-txt').textContent = email;
+  }
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  STATE.currentUser = null;
+  STATE.isAdmin = false;
+  STATE.condominioId = null;
+  showScreen('login');
+}
+
+// Inicialização única — sem onAuthStateChange para evitar chamadas duplicadas
+(async () => {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session && session.user) {
+      await carregarUsuario(session.user);
+    } else {
+      showScreen('login');
+    }
+  } catch(e) {
+    console.error('Erro na inicialização:', e);
+    showScreen('login');
+  }
+})();
+
+function setLoading(btnId, loading, txt) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.disabled = loading;
+  btn.textContent = txt;
+}
+
+function updateHomeUI() {
+  if (!STATE.currentUser) return;
+  const u = STATE.currentUser;
+  const initials = u.nome.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+  const el = document.getElementById('home-avatar');
+  if (el) el.textContent = initials;
+  const perfNome = document.getElementById('perfil-nome');
+  if (perfNome) perfNome.value = u.nome;
+  const perfEmail = document.getElementById('perfil-email');
+  if (perfEmail) perfEmail.value = u.email;
+  const perfTel = document.getElementById('perfil-tel');
+  if (perfTel) perfTel.value = u.telefone || '';
+  const perfInit = document.getElementById('perfil-initials');
+  if (perfInit) perfInit.textContent = initials;
+  const perfNomeD = document.getElementById('perfil-nome-display');
+  if (perfNomeD) perfNomeD.textContent = u.nome;
+  const perfAptoD = document.getElementById('perfil-apto-display');
+  if (perfAptoD) perfAptoD.textContent = `Ap. ${u.apartamento} · Bloco ${u.bloco}`;
+  const confirmM = document.getElementById('confirm-morador');
+  if (confirmM) confirmM.textContent = `${u.nome} · Ap ${u.apartamento}`;
+  // Carregar nome, cor e logo do condomínio
+  if (STATE.condominioId) {
+    sb.from('condominios').select('nome,cor_tema,limite_veiculos,logo_base64').eq('id', STATE.condominioId).single().then(({data}) => {
+      if (data) {
+        if (data.nome) {
+          syncNomeUI(data.nome);
+          document.querySelectorAll('#home-nome').forEach(el => el.textContent = data.nome);
+          const cfgNome = document.getElementById('config-condo-nome');
+          if (cfgNome) cfgNome.value = data.nome;
+          try { localStorage.setItem('prediohub_nome_condo', data.nome); } catch(e) {}
+        }
+        if (data.cor_tema) {
+          applyTheme(data.cor_tema);
+        }
+        if (data.logo_base64) {
+          applyLogo(data.logo_base64);
+          try { localStorage.setItem('prediohub_logo', data.logo_base64); } catch(e) {}
+        }
+        STATE.limiteVeiculos = data.limite_veiculos || 5;
+        const lv = document.getElementById('veiculo-limite');
+        if (lv) lv.textContent = STATE.limiteVeiculos + ' veículos';
+      }
+    });
+  }
+}
+
+async function salvarPerfil() {
+  if (!STATE.currentUser) return;
+  const nome = document.getElementById('perfil-nome').value.trim();
+  const tel = document.getElementById('perfil-tel').value.trim();
+  const { error } = await sb.from('usuarios').update({ nome, telefone: tel }).eq('id', STATE.currentUser.id);
+  if (error) { toast('Erro ao salvar perfil'); return; }
+  STATE.currentUser.nome = nome;
+  STATE.currentUser.telefone = tel;
+  updateHomeUI();
+  toast('Perfil atualizado!');
+}
+
+function changeAvatar() {
+  toast('Upload de foto disponível em breve');
+}
+
+// ===== CARREGAR MURAL =====
+async function carregarMural() {
+  if (!STATE.condominioId) return;
+  const { data, error } = await sb.from('avisos').select('*').eq('condominio_id', STATE.condominioId).order('criado_em', {ascending: false});
+  const list = document.getElementById('mural-list');
+  if (!list) return;
+  if (!data || data.length === 0) {
+    list.innerHTML = `<div id="mural-empty" style="display:flex;flex-direction:column;align-items:center;padding:36px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+      <i class="ti ti-speakerphone" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
+      <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhum aviso publicado</p>
+      <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:4px;">A administração ainda não publicou nenhum aviso.</p>
+    </div>`;
+    return;
+  }
+  const catBadge = {manutencao:'badge-green', reuniao:'badge-blue', geral:'badge-amber', urgente:'badge-red'};
+  const catLabel = {manutencao:'Manutenção', reuniao:'Reunião', geral:'Geral', urgente:'Urgente'};
+  list.innerHTML = data.map(a => `
+    <div class="notice-card" data-cat="${a.categoria}">
+      <div class="notice-header"><span class="badge ${catBadge[a.categoria]||'badge-gray'}">${catLabel[a.categoria]||a.categoria}</span><span class="notice-date">${new Date(a.criado_em).toLocaleDateString('pt-BR')}</span></div>
+      <div class="notice-title">${a.titulo}</div>
+      <div class="notice-preview">${a.conteudo}</div>
+      <div style="margin-top:8px;">
+        <button class="btn" style="font-size:12px;padding:5px 10px;" onclick="toggleReacao(this,'👍')">👍 0</button>
+        <button class="btn" style="font-size:12px;padding:5px 10px;" onclick="toggleReacao(this,'❤️')">❤️ 0</button>
+      </div>
+    </div>`).join('');
+  // Atualizar home também
+  const homeAvisos = document.querySelector('#screen-home .content');
+  if (homeAvisos) {
+    const secTitle = homeAvisos.querySelector('.section-title:last-of-type');
+    const existingCards = homeAvisos.querySelectorAll('.notice-card');
+    existingCards.forEach(c => c.remove());
+    data.slice(0,2).forEach(a => {
+      const div = document.createElement('div');
+      div.className='notice-card';
+      div.onclick = () => showScreen('mural');
+      div.innerHTML = `<div class="notice-header"><span class="badge ${catBadge[a.categoria]||'badge-gray'}">${catLabel[a.categoria]||a.categoria}</span><span class="notice-date">${new Date(a.criado_em).toLocaleDateString('pt-BR')}</span></div><div class="notice-title">${a.titulo}</div><div class="notice-preview">${a.conteudo.slice(0,80)}...</div>`;
+      homeAvisos.appendChild(div);
+    });
+  }
+}
+
+// ===== CARREGAR REUNIÕES =====
+async function carregarReunioes() {
+  if (!STATE.condominioId) return;
+  const { data } = await sb.from('reunioes').select('*').eq('condominio_id', STATE.condominioId).gte('data_hora', new Date().toISOString()).order('data_hora').limit(1);
+  const proxEl = document.getElementById('proxima-reuniao');
+  if (!proxEl) return;
+  if (!data || data.length === 0) {
+    proxEl.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;padding:28px 16px;">
+      <i class="ti ti-calendar-off" style="font-size:32px;color:var(--hint);margin-bottom:10px;"></i>
+      <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhuma reunião agendada</p>
+    </div>`;
+    return;
+  }
+  const r = data[0];
+  const dt = new Date(r.data_hora);
+  proxEl.innerHTML = `<div style="background:var(--teal-50);border-radius:var(--radius-md);padding:16px;margin-bottom:16px;border:0.5px solid var(--teal-100);">
+    <div class="row-between" style="margin-bottom:10px;">
+      <div><p style="font-size:16px;font-weight:700;color:var(--teal-800);">${r.titulo}</p></div>
+      <span class="badge" style="background:var(--teal-600);color:#fff;">${dt.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}</span>
+    </div>
+    <div style="display:flex;gap:16px;margin-bottom:12px;">
+      <span class="text-small" style="color:var(--teal-600);display:flex;align-items:center;gap:4px;"><i class="ti ti-clock" style="font-size:13px;"></i> ${dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span>
+      <span class="text-small" style="color:var(--teal-600);display:flex;align-items:center;gap:4px;"><i class="ti ti-map-pin" style="font-size:13px;"></i> ${r.local||'A definir'}</span>
+    </div>
+    ${r.pauta ? `<div style="border-top:0.5px solid var(--teal-100);padding-top:10px;margin-bottom:12px;"><p style="font-size:12px;font-weight:600;color:var(--teal-800);margin-bottom:5px;">Pauta:</p><p style="font-size:12px;color:var(--teal-600);line-height:1.7;">${r.pauta}</p></div>` : ''}
+    <button onclick="confirmarPresencaSupabase('${r.id}')" id="btn-presenca" class="btn btn-primary" style="padding:10px;font-size:13px;">Confirmar presença</button>
+  </div>`;
+}
+
+async function confirmarPresencaSupabase(reuniaoId) {
+  const btn = document.getElementById('btn-presenca');
+  if (!btn || btn.disabled) return;
+  const { error } = await sb.from('presencas').insert({ reuniao_id: reuniaoId, usuario_id: STATE.currentUser.id });
+  if (error && error.code === '23505') { toast('Presença já confirmada!'); return; }
+  if (error) { toast('Erro ao confirmar presença'); return; }
+  btn.innerHTML = '<i class="ti ti-check"></i> Presença confirmada';
+  btn.style.opacity = '0.6';
+  btn.disabled = true;
+  toast('Presença confirmada!');
+}
+
+// ===== CARREGAR CHAMADOS =====
+async function carregarChamados() {
+  if (!STATE.currentUser) return;
+  const { data } = await sb.from('chamados').select('*').eq('usuario_id', STATE.currentUser.id).order('criado_em', {ascending:false});
+  const list = document.getElementById('chamados-list');
+  if (!list) return;
+  const statusDot = {aberto:'#1D9E75', em_andamento:'#EF9F27', resolvido:'var(--hint)'};
+  const statusLabel = {aberto:'Aberto', em_andamento:'Em andamento', resolvido:'Resolvido'};
+  if (!data || data.length === 0) {
+    list.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;padding:28px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+      <i class="ti ti-tool-off" style="font-size:32px;color:var(--hint);margin-bottom:10px;"></i>
+      <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhum chamado aberto</p>
+    </div>`;
+    return;
+  }
+  list.innerHTML = data.map(c => `
+    <div class="ticket-card" style="${c.status==='resolvido'?'opacity:0.6;':''}">
+      <div class="row"><span class="status-dot" style="background:${statusDot[c.status]||'var(--hint)'};"></span><span style="font-size:11px;color:${statusDot[c.status]||'var(--hint)'};font-weight:600;">${statusLabel[c.status]||c.status}</span></div>
+      <div class="ticket-title">${c.titulo}</div>
+      <div class="ticket-desc">${c.descricao||''}</div>
+      <div class="ticket-footer"><span class="text-small">#${c.id.slice(0,6).toUpperCase()} · ${new Date(c.criado_em).toLocaleDateString('pt-BR')}</span></div>
+    </div>`).join('');
+}
+
+// ===== CARREGAR VEÍCULOS MORADOR =====
+async function carregarVeiculos() {
+  if (!STATE.currentUser) return;
+  const { data } = await sb.from('veiculos').select('*').eq('usuario_id', STATE.currentUser.id).order('criado_em');
+  const list = document.getElementById('veiculos-list');
+  if (!list) return;
+  if (!data || data.length === 0) {
+    list.innerHTML = `<div id="veiculos-empty" style="display:flex;flex-direction:column;align-items:center;padding:28px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);margin-bottom:10px;">
+      <i class="ti ti-car-off" style="font-size:32px;color:var(--hint);margin-bottom:10px;"></i>
+      <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhum veículo cadastrado</p>
+    </div>`;
+    return;
+  }
+  const cores = ['var(--blue-50)','var(--coral-50)','var(--amber-50)','var(--teal-50)'];
+  const coresIcon = ['var(--blue-600)','var(--coral-600)','var(--amber-600)','var(--teal-600)'];
+  list.innerHTML = data.map((v,i) => `
+    <div class="veiculo-card">
+      <div style="width:42px;height:42px;border-radius:10px;background:${cores[i%4]};display:flex;align-items:center;justify-content:center;font-size:20px;"><i class="ti ti-car" style="color:${coresIcon[i%4]};"></i></div>
+      <div style="flex:1;"><p style="font-size:14px;font-weight:600;color:var(--text);">${v.marca} ${v.modelo} · ${v.cor}</p><p class="text-small">${v.placa}</p></div>
+      <button class="btn btn-danger" style="padding:6px 10px;font-size:12px;" onclick="excluirVeiculo('${v.id}', this)"><i class="ti ti-trash" style="font-size:14px;"></i></button>
+    </div>`).join('');
+}
+
+async function excluirVeiculo(id, btn) {
+  if (!confirm('Excluir este veículo?')) return;
+  await sb.from('veiculos').delete().eq('id', id);
+  btn.closest('.veiculo-card').remove();
+  toast('Veículo removido!');
+}
+
+// ===== CARREGAR MULTAS MORADOR =====
+async function carregarMultas() {
+  if (!STATE.currentUser) return;
+  const { data } = await sb.from('multas').select('*').eq('usuario_id', STATE.currentUser.id).order('criado_em', {ascending:false});
+  const list = document.getElementById('multas-list');
+  if (!list) return;
+  const statusBadge = {pendente:'badge-amber', pago:'badge-green', expirada:'badge-red', cancelada:'badge-gray', em_analise:'badge-blue'};
+  const statusLabel = {pendente:'Pendente', pago:'Pago', expirada:'Expirada', cancelada:'Cancelada', em_analise:'Em análise'};
+  if (!data || data.length === 0) {
+    list.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;padding:36px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+      <i class="ti ti-receipt-off" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
+      <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhuma multa registrada</p>
+    </div>`;
+    return;
+  }
+  list.innerHTML = data.map(m => `
+    <div class="multa-card" data-status="${m.status}" ${m.status==='pago'||m.status==='cancelada'?'style="opacity:0.7;"':''}>
+      <div class="row-between" style="margin-bottom:8px;">
+        <span class="badge ${statusBadge[m.status]||'badge-gray'}">${statusLabel[m.status]||m.status}</span>
+        <span style="font-size:16px;font-weight:700;color:var(--text);">R$ ${Number(m.valor).toFixed(2).replace('.',',')}</span>
+      </div>
+      <p style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;">${m.motivo}</p>
+      ${m.descricao ? `<p class="text-muted">${m.descricao}</p>` : ''}
+      <div class="divider"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;">
+        <div><span style="color:var(--hint);">Data:</span> <strong>${new Date(m.criado_em).toLocaleDateString('pt-BR')}</strong></div>
+        <div><span style="color:var(--hint);">Prazo:</span> <strong>${m.prazo ? new Date(m.prazo).toLocaleDateString('pt-BR') : '--'}</strong></div>
+      </div>
+      ${m.status==='pendente' ? `<div style="margin-top:10px;"><button class="btn btn-secondary" style="font-size:12px;" onclick="showContestar('${m.id}')"><i class="ti ti-message-report" style="font-size:14px;"></i> Contestar</button></div>` : ''}
+    </div>`).join('');
+}
+
+// ===== CARREGAR DASHBOARD ADMIN =====
+async function carregarDashboardAdmin() {
+  if (!STATE.condominioId) return;
+  const [moradores, chamados, multas, encomendas] = await Promise.all([
+    sb.from('usuarios').select('id', {count:'exact'}).eq('condominio_id', STATE.condominioId).eq('role','morador'),
+    sb.from('chamados').select('id', {count:'exact'}).eq('condominio_id', STATE.condominioId).eq('status','aberto'),
+    sb.from('multas').select('id', {count:'exact'}).eq('condominio_id', STATE.condominioId).eq('status','pendente'),
+    sb.from('encomendas').select('id', {count:'exact'}).eq('condominio_id', STATE.condominioId).eq('status','aguardando')
+  ]);
+  const nums = document.querySelectorAll('.admin-stat .num');
+  if (nums[0]) nums[0].textContent = moradores.count || 0;
+  if (nums[1]) nums[1].textContent = chamados.count || 0;
+  if (nums[2]) nums[2].textContent = multas.count || 0;
+  const encEl = document.getElementById('admin-stat-encomendas');
+  if (encEl) encEl.textContent = encomendas.count || 0;
+  carregarMoradoresAdmin();
+}
+
+// ===== MORADORES ADMIN =====
+let _moradorAtual = null;
+const PERMS_DISPONIVEIS = [
+  {key:'moradores', label:'👥 Moradores'},
+  {key:'multas', label:'📋 Multas'},
+  {key:'encomendas', label:'📦 Encomendas'},
+  {key:'avisos', label:'📢 Avisos'},
+  {key:'reunioes', label:'👔 Reuniões'},
+  {key:'veiculos', label:'🚗 Veículos'},
+  {key:'financeiro', label:'💰 Financeiro'},
+  {key:'config', label:'⚙️ Config.'},
+];
+
+function switchMoradoresTab(tab, btn) {
+  document.querySelectorAll('#tab-moradores-lista,#tab-moradores-cargos').forEach(t => t.style.display = 'none');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-moradores-' + tab).style.display = 'block';
+  if (tab === 'cargos') carregarCargosAdmin();
+}
+
+async function carregarMoradoresAdmin() {
+  if (!STATE.condominioId) return;
+  const { data } = await sb.from('usuarios').select('*').eq('condominio_id', STATE.condominioId).neq('role','admin').order('nome');
+  const list = document.getElementById('moradores-list');
+  if (!list) return;
+  if (!data || data.length === 0) {
+    list.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;padding:36px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+      <i class="ti ti-users-group" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
+      <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhum morador cadastrado</p>
+      <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:4px;">Os moradores aparecerão aqui conforme se cadastrarem.</p>
+    </div>`; return;
+  }
+  const cores = [['var(--teal-50)','var(--teal-800)'],['var(--blue-50)','var(--blue-800)'],['var(--amber-50)','var(--amber-800)'],['var(--coral-50)','var(--coral-800)']];
+  const cargoLabel = {morador:'Morador', sindico:'Síndico', subsindico:'Subsíndico', conselheiro:'Conselheiro'};
+  list.innerHTML = data.map((u,i) => {
+    const inits = u.nome.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+    const c = cores[i%4];
+    const cargo = u.cargo || 'morador';
+    const isSind = cargo === 'sindico' || (u.permissoes && u.permissoes.tudo);
+    return `<div class="card" style="margin-bottom:10px;cursor:pointer;" data-nome="${u.nome.toLowerCase()}" onclick="abrirDetalhe(${JSON.stringify(JSON.stringify(u))})">
+      <div class="row-between">
+        <div class="row" style="gap:10px;">
+          <div style="width:40px;height:40px;border-radius:50%;background:${c[0]};display:flex;align-items:center;justify-content:center;font-weight:700;color:${c[1]};font-size:14px;flex-shrink:0;">${inits}</div>
+          <div>
+            <p style="font-size:14px;font-weight:600;color:var(--text);">${u.nome}</p>
+            <p style="font-size:12px;color:var(--muted);">Bl ${u.bloco||'?'} · Ap ${u.apartamento||'?'}</p>
+            ${isSind ? `<span class="badge badge-amber" style="font-size:10px;margin-top:2px;">⭐ ${cargoLabel[cargo]||cargo}</span>` : 
+              cargo !== 'morador' ? `<span class="badge badge-blue" style="font-size:10px;margin-top:2px;">${cargoLabel[cargo]||cargo}</span>` : ''}
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+          ${u.bloqueado ? '<span class="badge badge-red" style="font-size:10px;">🔒 Bloqueado</span>' : '<span class="badge badge-green" style="font-size:10px;">✓ Ativo</span>'}
+          <i class="ti ti-chevron-right" style="color:var(--hint);font-size:16px;"></i>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function abrirDetalhe(userJson) {
+  const u = JSON.parse(userJson);
+  _moradorAtual = u;
+  const inits = u.nome.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('detalhe-morador-nome').textContent = u.nome;
+  document.getElementById('detalhe-avatar').textContent = inits;
+  document.getElementById('detalhe-nome').textContent = u.nome;
+  document.getElementById('detalhe-local').textContent = `Bloco ${u.bloco||'?'} · Apartamento ${u.apartamento||'?'}`;
+  document.getElementById('detalhe-email').textContent = u.email || '';
+  document.getElementById('detalhe-cargo-badge').textContent = u.cargo || 'Morador';
+  const statusBadge = document.getElementById('detalhe-status-badge');
+  statusBadge.textContent = u.bloqueado ? '🔒 Bloqueado' : '✓ Ativo';
+  statusBadge.className = 'badge ' + (u.bloqueado ? 'badge-red' : 'badge-green');
+  const btnBloq = document.getElementById('btn-toggle-bloqueio');
+  btnBloq.innerHTML = u.bloqueado ? '<i class="ti ti-lock-open"></i> Desbloquear acesso' : '<i class="ti ti-lock"></i> Bloquear acesso';
+  btnBloq.className = 'btn ' + (u.bloqueado ? 'btn-secondary' : 'btn-danger');
+  // Carregar cargos no select
+  carregarCargosSelect(u.cargo);
+  // Renderizar permissões individuais
+  renderPermsDetalhe(u.permissoes || {});
+  showScreen('admin-morador-detalhe');
+}
+
+async function carregarCargosSelect(cargoAtual) {
+  const sel = document.getElementById('detalhe-cargo-select');
+  if (!sel) return;
+  const { data } = await sb.from('cargos').select('*').eq('condominio_id', STATE.condominioId).order('nome');
+  sel.innerHTML = `<option value="morador" ${!cargoAtual||cargoAtual==='morador'?'selected':''}>🏠 Morador (sem cargo especial)</option>`;
+  if (data) data.forEach(c => {
+    const isSind = c.permissoes && c.permissoes.tudo;
+    sel.innerHTML += `<option value="${c.nome.toLowerCase().replace(/\s+/g,'-')}" data-perms='${JSON.stringify(c.permissoes)}' ${cargoAtual===c.nome.toLowerCase().replace(/\s+/g,'-')?'selected':''}>${isSind?'⭐':''} ${c.nome}</option>`;
+  });
+  sel.onchange = function() {
+    const opt = sel.options[sel.selectedIndex];
+    const perms = opt.dataset.perms ? JSON.parse(opt.dataset.perms) : {};
+    renderPermsDetalhe(perms);
+  };
+}
+
+function renderPermsDetalhe(permsAtivas) {
+  const grid = document.getElementById('detalhe-perms-grid');
+  if (!grid) return;
+  const temTudo = permsAtivas && permsAtivas.tudo;
+  grid.innerHTML = PERMS_DISPONIVEIS.map(p => `
+    <label class="perm-toggle">
+      <input type="checkbox" name="perm-detalhe" value="${p.key}" ${temTudo || (permsAtivas && permsAtivas[p.key]) ? 'checked' : ''}>
+      <span>${p.label}</span>
+    </label>`).join('');
+}
+
+async function salvarPermissoesMorador() {
+  if (!_moradorAtual) return;
+  const sel = document.getElementById('detalhe-cargo-select');
+  const cargo = sel.value;
+  const checks = document.querySelectorAll('input[name="perm-detalhe"]:checked');
+  const permissoes = {};
+  checks.forEach(c => { permissoes[c.value] = true; });
+  // Se cargo é síndico, marcar tudo
+  const opt = sel.options[sel.selectedIndex];
+  const cargoPerms = opt.dataset.perms ? JSON.parse(opt.dataset.perms) : {};
+  if (cargoPerms.tudo) permissoes.tudo = true;
+
+  const { error } = await sb.from('usuarios').update({ cargo, permissoes }).eq('id', _moradorAtual.id);
+  if (error) { toast('Erro ao salvar: ' + error.message); return; }
+  toast('✅ Permissões atualizadas!');
+  _moradorAtual.cargo = cargo;
+  _moradorAtual.permissoes = permissoes;
+  document.getElementById('detalhe-cargo-badge').textContent = cargo;
+  carregarMoradoresAdmin();
+}
+
+async function toggleBloqueioDetalhe() {
+  if (!_moradorAtual) return;
+  const novo = !_moradorAtual.bloqueado;
+  await sb.from('usuarios').update({ bloqueado: novo }).eq('id', _moradorAtual.id);
+  _moradorAtual.bloqueado = novo;
+  const btnBloq = document.getElementById('btn-toggle-bloqueio');
+  btnBloq.innerHTML = novo ? '<i class="ti ti-lock-open"></i> Desbloquear acesso' : '<i class="ti ti-lock"></i> Bloquear acesso';
+  btnBloq.className = 'btn ' + (novo ? 'btn-secondary' : 'btn-danger');
+  const statusBadge = document.getElementById('detalhe-status-badge');
+  statusBadge.textContent = novo ? '🔒 Bloqueado' : '✓ Ativo';
+  statusBadge.className = 'badge ' + (novo ? 'badge-red' : 'badge-green');
+  toast(novo ? '🔒 Acesso bloqueado' : '✅ Acesso desbloqueado');
+  carregarMoradoresAdmin();
+}
+
+async function confirmarRemoverMorador() {
+  if (!_moradorAtual) return;
+  if (!confirm(`Remover ${_moradorAtual.nome} do condomínio?`)) return;
+  await sb.from('usuarios').delete().eq('id', _moradorAtual.id);
+  toast('Morador removido');
+  showScreen('admin-moradores');
+  carregarMoradoresAdmin();
+}
+
+// ===== CARGOS ADMIN =====
+async function carregarCargosAdmin() {
+  if (!STATE.condominioId) return;
+  const { data } = await sb.from('cargos').select('*').eq('condominio_id', STATE.condominioId).order('nome');
+  const list = document.getElementById('cargos-list');
+  if (!list) return;
+  if (!data || data.length === 0) {
+    list.innerHTML = `<div style="text-align:center;padding:32px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+      <p style="font-size:13px;color:var(--muted);">Nenhum cargo criado ainda.</p></div>`; return;
+  }
+  const permLabels = {tudo:'Acesso total', moradores:'Moradores', multas:'Multas', encomendas:'Encomendas', avisos:'Avisos', reunioes:'Reuniões', veiculos:'Veículos', financeiro:'Financeiro', config:'Config.'};
+  list.innerHTML = data.map(c => {
+    const isSind = c.permissoes && c.permissoes.tudo;
+    const permsKeys = Object.keys(c.permissoes || {}).filter(k => c.permissoes[k]);
+    const permsStr = isSind ? '🔑 Acesso total' : permsKeys.map(k => permLabels[k]||k).join(', ') || 'Nenhuma';
+    return `<div class="card" style="margin-bottom:10px;">
+      <div class="row-between" style="margin-bottom:6px;">
+        <p style="font-size:15px;font-weight:700;color:var(--text);">${isSind?'⭐ ':''}${c.nome}</p>
+        <button onclick="excluirCargo('${c.id}','${c.nome}')" style="background:none;border:none;color:var(--coral-600);cursor:pointer;font-size:13px;">
+          <i class="ti ti-trash"></i>
+        </button>
+      </div>
+      ${c.descricao ? `<p style="font-size:12px;color:var(--muted);margin-bottom:6px;">${c.descricao}</p>` : ''}
+      <p style="font-size:11px;color:var(--hint);">Permissões: ${permsStr}</p>
+    </div>`;
+  }).join('');
+}
+
+async function criarCargo() {
+  const nome = document.getElementById('novo-cargo-nome').value.trim();
+  const desc = document.getElementById('novo-cargo-desc').value.trim();
+  if (!nome) { toast('Dê um nome ao cargo'); return; }
+  const tudo = document.getElementById('perm-tudo').checked;
+  const permissoes = {};
+  if (tudo) {
+    permissoes.tudo = true;
+  } else {
+    document.querySelectorAll('#novo-cargo-perms input[name="perm"]:checked').forEach(c => { permissoes[c.value] = true; });
+  }
+  const { error } = await sb.from('cargos').insert({ nome, descricao: desc, permissoes, condominio_id: STATE.condominioId });
+  if (error) { toast('Erro: ' + error.message); return; }
+  toast('✅ Cargo "' + nome + '" criado!');
+  showScreen('admin-moradores');
+  carregarCargosAdmin();
+}
+
+async function excluirCargo(id, nome) {
+  if (!confirm(`Excluir o cargo "${nome}"?`)) return;
+  await sb.from('cargos').delete().eq('id', id);
+  toast('Cargo excluído');
+  carregarCargosAdmin();
+}
+
+function toggleTudoNovoCargo(cb) {
+  document.querySelectorAll('#novo-cargo-perms input[name="perm"]').forEach(i => { i.checked = cb.checked; i.disabled = cb.checked; });
+}
+
+async function toggleBloqueio(id, nome, bloqueado) {
+  const acao = bloqueado ? 'desbloquear' : 'bloquear';
+  if (!confirm(`Deseja ${acao} ${nome}?`)) return;
+  await sb.from('usuarios').update({ bloqueado: !bloqueado }).eq('id', id);
+  toast(`${nome} ${bloqueado ? 'desbloqueado' : 'bloqueado'}!`);
+  carregarMoradoresAdmin();
+}
+
+// ===== ADMIN: PUBLICAR AVISO =====
+async function publicarAviso() {
+  const titulo = document.getElementById('aviso-titulo')?.value.trim();
+  const conteudo = document.getElementById('aviso-conteudo')?.value.trim();
+  const categoria = document.getElementById('aviso-cat')?.value || 'geral';
+  if (!titulo || !conteudo) { toast('Preencha título e conteúdo'); return; }
+  const { error } = await sb.from('avisos').insert({ titulo, conteudo, categoria, condominio_id: STATE.condominioId, autor_id: STATE.currentUser.id });
+  if (error) { toast('Erro ao publicar aviso'); return; }
+  toast('Aviso publicado no mural!');
+  showScreen('admin-home');
+}
+
+// ===== ADMIN: AGENDAR REUNIÃO =====
+async function agendarReuniao() {
+  const titulo = document.getElementById('reun-titulo')?.value.trim();
+  const data_hora_val = document.getElementById('reun-data')?.value;
+  const hora = document.getElementById('reun-hora')?.value || '19:00';
+  const local = document.getElementById('reun-local')?.value.trim();
+  const pauta = document.getElementById('reun-pauta')?.value.trim();
+  if (!titulo || !data_hora_val) { toast('Preencha título e data'); return; }
+  const data_hora = data_hora_val + 'T' + hora + ':00';
+  const { error } = await sb.from('reunioes').insert({ titulo, data_hora, local, pauta, condominio_id: STATE.condominioId });
+  if (error) { toast('Erro ao agendar reunião'); return; }
+  toast('Reunião agendada!');
+  closeModal({forced:true});
+}
+
+// ===== ADMIN: MULTAS =====
+async function carregarMultasAdmin() {
+  if (!STATE.condominioId) return;
+  const { data } = await sb.from('multas').select('*, usuarios(nome, apartamento, bloco)').eq('condominio_id', STATE.condominioId).order('criado_em', {ascending:false});
+  const list = document.getElementById('admin-multas-list');
+  if (!list) return;
+  if (!data || data.length === 0) {
+    list.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;padding:36px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+      <i class="ti ti-receipt-off" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
+      <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhuma multa registrada</p>
+    </div>`;
+    return;
+  }
+  const statusBadge = {pendente:'badge-amber', pago:'badge-green', expirada:'badge-red', cancelada:'badge-gray'};
+  const statusLabel = {pendente:'Pendente', pago:'Pago', expirada:'Expirada', cancelada:'Cancelada'};
+  list.innerHTML = data.map(m => `
+    <div class="multa-card" data-astatus="${m.status}" ${m.status==='pago'||m.status==='cancelada'?'style="opacity:0.7;"':''}>
+      <div class="row-between" style="margin-bottom:8px;">
+        <span class="badge ${statusBadge[m.status]||'badge-gray'}">${statusLabel[m.status]||m.status}</span>
+        <span style="font-size:16px;font-weight:700;color:var(--text);">R$ ${Number(m.valor).toFixed(2).replace('.',',')}</span>
+      </div>
+      <p style="font-size:13px;font-weight:600;margin-bottom:2px;">${m.motivo}</p>
+      <p class="text-small">${m.usuarios?.nome||'--'} · Ap ${m.usuarios?.apartamento||'--'} · Bloco ${m.usuarios?.bloco||'--'}</p>
+      <div class="divider"></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn btn-secondary" style="font-size:12px;padding:6px 10px;" onclick="atualizarStatusMulta('${m.id}','pago')"><i class="ti ti-check" style="font-size:13px;"></i> Marcar pago</button>
+        <button class="btn btn-ghost" style="font-size:12px;padding:6px 10px;" onclick="atualizarStatusMulta('${m.id}','cancelada')"><i class="ti ti-x" style="font-size:13px;"></i> Cancelar</button>
+        <button class="btn btn-danger" style="font-size:12px;padding:6px 10px;" onclick="excluirMulta('${m.id}')"><i class="ti ti-trash" style="font-size:13px;"></i></button>
+      </div>
+    </div>`).join('');
+}
+
+async function atualizarStatusMulta(id, status) {
+  await sb.from('multas').update({ status }).eq('id', id);
+  toast('Status atualizado: ' + status);
+  carregarMultasAdmin();
+}
+
+async function excluirMulta(id) {
+  if (!confirm('Excluir esta multa?')) return;
+  await sb.from('multas').delete().eq('id', id);
+  toast('Multa excluída!');
+  carregarMultasAdmin();
+}
+
+async function salvarMulta() {
+  const usuario_id = document.getElementById('multa-morador')?.value;
+  const motivo = document.getElementById('multa-motivo')?.value.trim();
+  const valor = document.getElementById('multa-valor')?.value;
+  const prazo = document.getElementById('multa-prazo')?.value;
+  const descricao = document.getElementById('multa-desc')?.value.trim();
+  if (!motivo || !valor) { toast('Preencha motivo e valor'); return; }
+  const { error } = await sb.from('multas').insert({ motivo, valor: parseFloat(valor), prazo, descricao, usuario_id, condominio_id: STATE.condominioId, status: 'pendente' });
+  if (error) { toast('Erro ao aplicar multa'); return; }
+  toast('Multa aplicada com sucesso!');
+  showScreen('admin-multas');
+  carregarMultasAdmin();
+}
+
+// ===== ADMIN: VEÍCULOS =====
+async function carregarVeiculosAdmin() {
+  if (!STATE.condominioId) return;
+  const { data } = await sb.from('veiculos').select('*, usuarios(nome, apartamento, bloco)').eq('condominio_id', STATE.condominioId).order('criado_em', {ascending:false});
+  const list = document.getElementById('admin-veiculos-list');
+  if (!list) return;
+  if (!data || data.length === 0) {
+    list.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;padding:36px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+      <i class="ti ti-car-off" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
+      <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhum veículo cadastrado</p>
+    </div>`;
+    return;
+  }
+  const cores = [['var(--blue-50)','var(--blue-600)'],['var(--coral-50)','var(--coral-600)'],['var(--amber-50)','var(--amber-600)'],['var(--teal-50)','var(--teal-600)']];
+  list.innerHTML = data.map((v,i) => {
+    const c = cores[i%4];
+    return `<div class="veiculo-card" data-bloco="${v.usuarios?.bloco||''}">
+      <div style="width:42px;height:42px;border-radius:10px;background:${c[0]};display:flex;align-items:center;justify-content:center;"><i class="ti ti-car" style="color:${c[1]};font-size:20px;"></i></div>
+      <div style="flex:1;"><p style="font-size:13px;font-weight:600;color:var(--text);">${v.marca} ${v.modelo} · ${v.cor} · <strong>${v.placa}</strong></p><p class="text-small">${v.usuarios?.nome||'--'} · Ap ${v.usuarios?.apartamento||'--'} · Bloco ${v.usuarios?.bloco||'--'}</p></div>
+      <button class="btn btn-danger" style="padding:5px 8px;" onclick="excluirVeiculoAdmin('${v.id}')"><i class="ti ti-trash" style="font-size:14px;"></i></button>
+    </div>`;
+  }).join('');
+}
+
+async function excluirVeiculoAdmin(id) {
+  if (!confirm('Excluir este veículo?')) return;
+  await sb.from('veiculos').delete().eq('id', id);
+  toast('Veículo removido!');
+  carregarVeiculosAdmin();
+}
+
+// ===== ADMIN: REGRAS =====
+async function carregarRegras() {
+  const condId = STATE.condominioId;
+  if (!condId) return;
+  const { data } = await sb.from('regras').select('*').eq('condominio_id', condId).order('categoria');
+  const listAdmin = document.getElementById('regras-admin-list');
+  const listMorador = document.getElementById('regras-list');
+  const catBadge = {piscina:'badge-blue', silencio:'badge-amber', garagem:'badge-gray', animais:'badge-green', academia:'badge-coral'};
+  const catLabel = {piscina:'Piscina', silencio:'Silêncio', garagem:'Garagem', animais:'Animais', academia:'Academia'};
+  if (listAdmin) {
+    if (!data || data.length === 0) {
+      listAdmin.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;padding:36px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+        <i class="ti ti-book-off" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
+        <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhuma regra cadastrada</p>
+      </div>`;
+    } else {
+      listAdmin.innerHTML = data.map(r => `
+        <div class="regra-card">
+          <div class="row-between" style="margin-bottom:6px;">
+            <span class="badge ${catBadge[r.categoria]||'badge-gray'}">${catLabel[r.categoria]||r.categoria}</span>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-danger" style="padding:4px 7px;" onclick="excluirRegra('${r.id}')"><i class="ti ti-trash" style="font-size:14px;"></i></button>
+            </div>
+          </div>
+          <p style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">${r.titulo}</p>
+          <p class="text-muted">${r.descricao}</p>
+        </div>`).join('');
+    }
+  }
+  if (listMorador) {
+    if (!data || data.length === 0) {
+      listMorador.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;padding:36px 16px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+        <i class="ti ti-book-off" style="font-size:36px;color:var(--hint);margin-bottom:12px;"></i>
+        <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhuma regra publicada</p>
+      </div>`;
+    } else {
+      listMorador.innerHTML = data.map(r => `
+        <div class="regra-card" data-cat="${r.categoria}">
+          <div class="row" style="margin-bottom:8px;">
+            <span class="badge ${catBadge[r.categoria]||'badge-gray'}">${catLabel[r.categoria]||r.categoria}</span>
+          </div>
+          <p style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:5px;">${r.titulo}</p>
+          <p class="text-muted">${r.descricao}</p>
+        </div>`).join('');
+    }
+  }
+}
+
+async function salvarRegra() {
+  const titulo = document.getElementById('regra-titulo')?.value.trim();
+  const descricao = document.getElementById('regra-desc')?.value.trim();
+  const categoria = document.getElementById('regra-cat')?.value || 'geral';
+  if (!titulo || !descricao) { toast('Preencha título e descrição'); return; }
+  const { error } = await sb.from('regras').insert({ titulo, descricao, categoria, condominio_id: STATE.condominioId });
+  if (error) { toast('Erro ao salvar regra'); return; }
+  toast('Regra salva!');
+  showScreen('admin-regras');
+  carregarRegras();
+}
+
+async function excluirRegra(id) {
+  if (!confirm('Excluir esta regra?')) return;
+  await sb.from('regras').delete().eq('id', id);
+  toast('Regra excluída!');
+  carregarRegras();
+}
+
+// ===== ADMIN: SALVAR VEÍCULO =====
+async function salvarVeiculo() {
+  const marca = document.getElementById('v-marca').value.trim();
+  const modelo = document.getElementById('v-modelo').value.trim();
+  const cor = document.getElementById('v-cor').value.trim();
+  const placa = document.getElementById('v-placa').value.trim().toUpperCase();
+  if (!marca||!modelo||!placa) { toast('Preencha todos os campos'); return; }
+  // Verificar limite
+  const { count } = await sb.from('veiculos').select('id', {count:'exact'}).eq('usuario_id', STATE.currentUser.id);
+  if (count >= STATE.limiteVeiculos) { toast(`Limite de ${STATE.limiteVeiculos} veículos atingido`); return; }
+  const { error } = await sb.from('veiculos').insert({ marca, modelo, cor, placa, usuario_id: STATE.currentUser.id, condominio_id: STATE.condominioId });
+  if (error) { toast('Erro ao salvar veículo'); return; }
+  toast('Veículo adicionado!');
+  ['v-marca','v-modelo','v-cor','v-placa'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  showScreen('veiculos');
+  carregarVeiculos();
+}
+
+// ===== ADMIN: SALVAR CONFIG CONDOMÍNIO =====
+async function salvarNomeCondo() {
+  const nome = document.getElementById('config-condo-nome').value.trim();
+  if (!nome) { toast('Digite o nome do condomínio'); return; }
+  if (STATE.condominioId) {
+    await sb.from('condominios').update({ nome }).eq('id', STATE.condominioId);
+  }
+  try { localStorage.setItem('prediohub_nome_condo', nome); } catch(e) {}
+  syncNomeUI(nome);
+  document.querySelectorAll('#home-nome').forEach(el => el.textContent = nome);
+  toast('Nome atualizado: ' + nome);
+}
+
+async function salvarLimite() {
+  const val = parseInt(document.getElementById('novo-limite').value)||5;
+  STATE.limiteVeiculos = val;
+  if (STATE.condominioId) {
+    await sb.from('condominios').update({ limite_veiculos: val }).eq('id', STATE.condominioId);
+  }
+  const el = document.getElementById('veiculo-limite');
+  if (el) el.textContent = val + ' veículos';
+  toast('Limite atualizado para ' + val + ' veículos');
+  closeModal({forced:true});
+}
+
+// ===== RESERVAS =====
+function selectArea(area) {
+  document.querySelectorAll('.area-option').forEach(o=>o.classList.remove('selected'));
+  const map={salao:'area-salao',churras:'area-churras',piscina:'area-piscina',jogos:'area-jogos'};
+  if (map[area]) document.getElementById(map[area]).classList.add('selected');
+}
+
+function selectTime(btn) {
+  document.querySelectorAll('.time-btn:not(.unavailable)').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+// Calendar
+(function buildCalendar() {
+  const grid = document.getElementById('date-grid');
+  if (!grid) return;
+  for (let offset=3; offset<3+31; offset++) {
+    const d = document.createElement('button');
+    const day = offset-2;
+    if (day<1||day>31) { d.className='day-btn'; d.style.visibility='hidden'; d.textContent='.'; }
+    else {
+      d.className='day-btn'+(day===15?' today':'')+(day===20?' selected':'');
+      d.textContent=day;
+      d.onclick=function(){document.querySelectorAll('.day-btn').forEach(b=>b.classList.remove('selected'));d.classList.add('selected');};
+    }
+    grid.appendChild(d);
+  }
+})();
+
+// ===== REUNIÕES =====
+function confirmPresencaLocal() {
+  const btn = document.getElementById('btn-presenca');
+  if (!btn||btn.disabled) return;
+  btn.innerHTML='<i class="ti ti-check"></i> Presença confirmada';
+  btn.style.opacity='0.6';
+  btn.disabled=true;
+  toast('Presença confirmada!');
+}
+
+// ===== MURAL =====
+function filterMural(btn, cat) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#mural-list .notice-card[data-cat]').forEach(c=>{
+    c.style.display=(cat==='all'||c.dataset.cat===cat)?'block':'none';
+  });
+}
+
+function toggleReacao(btn, emoji) {
+  const parts = btn.textContent.split(' ');
+  const count = parseInt(parts[1])||0;
+  const active = btn.dataset.reacted==='1';
+  if (active) { btn.textContent=emoji+' '+(count-1); btn.dataset.reacted='0'; btn.style.background=''; }
+  else { btn.textContent=emoji+' '+(count+1); btn.dataset.reacted='1'; btn.style.background='var(--teal-50)'; btn.style.borderColor='var(--teal-600)'; }
+}
+
+// ===== MULTAS MORADOR =====
+function filterMultas(btn, status) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#multas-list .multa-card').forEach(c=>{
+    c.style.display=(status==='all'||c.dataset.status===status)?'block':'none';
+  });
+}
+
+function showContestar() {
+  showModal('Contestar multa', `
+    <p class="text-muted" style="margin-bottom:12px;">Descreva o motivo da contestação. A administração analisará e retornará em até 5 dias úteis.</p>
+    <div class="form-group">
+      <label class="form-label">Justificativa</label>
+      <textarea placeholder="Explique o motivo da contestação..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Anexar evidência</label>
+      <button class="btn btn-ghost" style="width:100%;justify-content:center;" onclick="toast('Upload disponível no app nativo')"><i class="ti ti-upload" style="font-size:16px;"></i> Selecionar arquivo</button>
+    </div>
+    <button class="btn btn-primary" style="margin-top:8px;" onclick="toast('Contestação enviada!');closeModal({forced:true})">Enviar contestação</button>
+  `);
+}
+
+// ===== ADMIN MULTAS =====
+function filterAdminMultas(btn, status) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#admin-multas-list .multa-card').forEach(c=>{
+    c.style.display=(status==='all'||c.dataset.astatus===status)?'block':'none';
+  });
+}
+
+function alterarStatusMulta(btn, novoStatus, label) {
+  const card = btn.closest('.multa-card');
+  card.dataset.astatus = novoStatus;
+  const badge = card.querySelector('.badge');
+  const classes = {pago:'badge-green', pendente:'badge-amber', cancelada:'badge-gray', expirada:'badge-red'};
+  badge.className='badge '+(classes[novoStatus]||'badge-gray');
+  badge.textContent = label;
+  toast('Status atualizado: '+label);
+  if (novoStatus==='pago'||novoStatus==='cancelada') card.style.opacity='0.7';
+}
+
+function salvarMulta() {
+  toast('Multa aplicada com sucesso!');
+  showScreen('admin-multas');
+}
+
+// ===== ADMIN VEÍCULOS =====
+function filterAdminVeiculos(btn, bloco) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#admin-veiculos-list .veiculo-card').forEach(c=>{
+    c.style.display=(bloco==='all'||c.dataset.bloco===bloco)?'flex':'none';
+  });
+}
+
+function showLimiteModal() {
+  showModal('Limite de veículos', `
+    <p class="text-muted" style="margin-bottom:12px;">Defina o limite máximo de veículos por apartamento.</p>
+    <div class="form-group">
+      <label class="form-label">Limite atual</label>
+      <input type="number" id="novo-limite" value="${STATE.limiteVeiculos}" min="1" max="10">
+    </div>
+    <button class="btn btn-primary" style="margin-top:8px;" onclick="salvarLimite()">Salvar</button>
+  `);
+}
+
+function editVeiculo(btn) {
+  toast('Edição de veículo — em breve no app nativo');
+}
+
+// ===== REGRAS FILTRO =====
+function filterRegras(btn, cat) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#regras-list .regra-card').forEach(c=>{
+    c.style.display=(cat==='all'||c.dataset.cat===cat)?'block':'none';
+  });
+}
+
+function showNovaReuniaoForm() {
+  showModal('Agendar reunião', `
+    <div class="form-group"><label class="form-label">Título</label><input type="text" id="reun-titulo" placeholder="Ex: Assembleia Ordinária"></div>
+    <div class="form-group"><label class="form-label">Data</label><input type="date" id="reun-data"></div>
+    <div class="form-group"><label class="form-label">Horário</label><input type="time" id="reun-hora" value="19:00"></div>
+    <div class="form-group"><label class="form-label">Local</label><input type="text" id="reun-local" placeholder="Ex: Salão principal"></div>
+    <div class="form-group"><label class="form-label">Pauta</label><textarea id="reun-pauta" placeholder="Itens da pauta..."></textarea></div>
+    <button class="btn btn-primary" style="margin-top:8px;" onclick="agendarReuniao()">Agendar</button>
+  `);
+}
+
+// ===== MODAL =====
+function showModal(title, content) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-content').innerHTML = content;
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function closeModal(e) {
+  if (e && e.target === document.getElementById('modal') || (e && e.forced)) {
+    document.getElementById('modal').style.display = 'none';
+  }
+}
+
+function confirmarExclusao(tipo) {
+  showModal('Confirmar exclusão', `
+    <p class="text-muted" style="margin-bottom:16px;">Tem certeza que deseja excluir este(a) ${tipo}? Esta ação não pode ser desfeita.</p>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal({forced:true})">Cancelar</button>
+      <button class="btn btn-danger" style="flex:1;justify-content:center;" onclick="toast('${tipo.charAt(0).toUpperCase()+tipo.slice(1)} excluído(a).');closeModal({forced:true})"><i class="ti ti-trash" style="font-size:14px;"></i> Excluir</button>
+    </div>
+  `);
+}
+
+function confirmarBloqueio(nome) {
+  showModal('Bloquear usuário', `
+    <p class="text-muted" style="margin-bottom:16px;">Bloquear <strong>${nome}</strong>? O usuário perderá acesso imediatamente.</p>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal({forced:true})">Cancelar</button>
+      <button class="btn btn-danger" style="flex:1;justify-content:center;" onclick="toast('${nome} bloqueado(a).');closeModal({forced:true})"><i class="ti ti-lock" style="font-size:14px;"></i> Bloquear</button>
+    </div>
+  `);
+}
+
+// ===== TOAST =====
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.opacity = '1';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ el.style.opacity='0'; }, 2500);
+}
+
+// ===== PREENCHER SELECT MORADORES =====
+async function preencherSelectMoradores() {
+  if (!STATE.condominioId) return;
+  const { data } = await sb.from('usuarios').select('id,nome,apartamento,bloco').eq('condominio_id', STATE.condominioId).eq('role','morador').order('nome');
+  const sel = document.getElementById('multa-morador');
+  if (!sel || !data) return;
+  sel.innerHTML = '<option value="">Selecione o morador...</option>' + data.map(u => `<option value="${u.id}">${u.nome} — Ap ${u.apartamento||'?'} / Bloco ${u.bloco||'?'}</option>`).join('');
+}
+
+// ===== SALVAR CHAMADO =====
+async function enviarChamado() {
+  const titulo = document.querySelector('#screen-novo-chamado .form-group:nth-child(2) input')?.value.trim() || 'Sem título';
+  const descricao = document.querySelector('#screen-novo-chamado textarea')?.value.trim();
+  const categoria = document.querySelector('#screen-novo-chamado select')?.value || 'Outro';
+  const localizacao = document.querySelector('#screen-novo-chamado .form-group:nth-child(3) input')?.value.trim();
+  const { error } = await sb.from('chamados').insert({ titulo: titulo||categoria, descricao, categoria, localizacao, usuario_id: STATE.currentUser.id, condominio_id: STATE.condominioId, status: 'aberto' });
+  if (error) { toast('Erro ao enviar chamado'); return; }
+  showScreen('chamado-enviado');
+}
+
+// ===== MORADORES SEARCH =====
+function filterMoradores(q) {
+  const lower = q.toLowerCase();
+  document.querySelectorAll('#moradores-list .card').forEach(c=>{
+    const txt = c.textContent.toLowerCase();
+    c.style.display = txt.includes(lower)?'block':'none';
+  });
+}
+
+// ===== CONFIG: NOME CONDOMÍNIO (versão local apenas para UI sync) =====
+function syncNomeUI(nome) {
+  document.querySelectorAll('#home-nome, .condo-nome-display').forEach(el => { el.textContent = nome; });
+  const loginP = document.getElementById('login-condo-nome');
+  if (loginP) loginP.textContent = nome + ' — faça seu login';
+  const previewName = document.getElementById('theme-preview-name');
+  if (previewName) previewName.textContent = nome;
+}
+
+// ===== CONFIG: LOGO =====
+function uploadLogo(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const base64 = e.target.result;
+    applyLogo(base64);
+    try { localStorage.setItem('prediohub_logo', base64); } catch(err) {}
+    if (STATE.condominioId) {
+      await sb.from('condominios').update({ logo_base64: base64 }).eq('id', STATE.condominioId);
+    }
+    toast('Logo atualizada!');
+  };
+  reader.readAsDataURL(file);
+}
+
+function applyLogo(base64) {
+  if (!base64) return;
+  // Login
+  const loginImg = document.getElementById('login-logo-img');
+  const loginIcon = document.getElementById('login-logo-icon');
+  if (loginImg) { loginImg.src = base64; loginImg.style.display = 'block'; }
+  if (loginIcon) loginIcon.style.display = 'none';
+  // Admin config
+  const adminImg = document.getElementById('condo-logo-img');
+  const adminIcon = document.getElementById('condo-logo-icon');
+  if (adminImg) { adminImg.src = base64; adminImg.style.display = 'block'; }
+  if (adminIcon) adminIcon.style.display = 'none';
+  // Home morador top-nav
+  const homeImg = document.getElementById('home-logo-img');
+  const homeIcon = document.getElementById('home-logo-icon');
+  if (homeImg) { homeImg.src = base64; homeImg.style.display = 'block'; }
+  if (homeIcon) homeIcon.style.display = 'none';
+}
+
+// ===== CONFIG: CORES =====
+function applyTheme(hex, light, dark) {
+  const root = document.documentElement;
+  const lightColor = light || lightenHex(hex);
+  const darkColor = dark || darkenHex(hex);
+  root.style.setProperty('--teal-600', hex);
+  root.style.setProperty('--teal-50', lightColor);
+  root.style.setProperty('--teal-800', darkColor);
+  root.style.setProperty('--teal-400', hex);
+  root.style.setProperty('--teal-100', lightColor);
+  root.style.setProperty('--accent', hex);
+  // Forçar cor em elementos que usam background inline fixo
+  document.querySelectorAll('.status-bar, .top-nav, .detail-header, .login-logo, #login-logo-wrap').forEach(el => {
+    el.style.background = hex;
+  });
+  document.querySelectorAll('.btn-primary').forEach(el => {
+    el.style.background = hex;
+  });
+  // Atualiza preview bar
+  const bar = document.getElementById('theme-preview-bar');
+  if (bar) bar.style.background = hex;
+  // Atualiza color picker
+  const pick = document.getElementById('custom-color-pick');
+  if (pick) pick.value = hex;
+  const hexIn = document.getElementById('custom-color-hex');
+  if (hexIn) hexIn.value = hex;
+  // Persiste no localStorage para sobreviver ao F5
+  try { localStorage.setItem('prediohub_cor_tema', hex); } catch(e) {}
+}
+
+// Aplica cor, logo e nome salvos no localStorage imediatamente (antes do Supabase carregar)
+(function() {
+  try {
+    const savedCor = localStorage.getItem('prediohub_cor_tema');
+    if (savedCor && /^#[0-9A-Fa-f]{6}$/.test(savedCor)) applyTheme(savedCor);
+    const savedLogo = localStorage.getItem('prediohub_logo') || PREDIOHUB_LOGO;
+    if (savedLogo) applyLogo(savedLogo);
+    const savedNome = localStorage.getItem('prediohub_nome_condo');
+    if (savedNome) syncNomeUI(savedNome);
+  } catch(e) { try { applyLogo(PREDIOHUB_LOGO); } catch(e2) {} }
+})();
+
+function lightenHex(hex) {
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  const lr=Math.min(255,r+Math.round((255-r)*0.85)), lg=Math.min(255,g+Math.round((255-g)*0.85)), lb=Math.min(255,b+Math.round((255-b)*0.85));
+  return '#'+[lr,lg,lb].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+function darkenHex(hex) {
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  const dr=Math.round(r*0.55), dg=Math.round(g*0.55), db=Math.round(b*0.55);
+  return '#'+[dr,dg,db].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+
+function selectPresetColor(btn) {
+  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));
+  btn.classList.add('selected');
+  const hex = btn.dataset.color;
+  const light = btn.dataset.light;
+  const dark = btn.dataset.dark;
+  applyTheme(hex, light, dark);
+  // Salvar no Supabase se admin
+  if (STATE.condominioId) sb.from('condominios').update({ cor_tema: hex }).eq('id', STATE.condominioId);
+  toast('Tema aplicado!');
+}
+
+function previewCustomColor(hex) {
+  const bar = document.getElementById('theme-preview-bar');
+  if (bar && /^#[0-9A-Fa-f]{6}$/.test(hex)) bar.style.background = hex;
+  const hexIn = document.getElementById('custom-color-hex');
+  if (hexIn) hexIn.value = hex;
+}
+
+function applyCustomColor(hex) {
+  if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) { toast('Cor inválida. Use formato #RRGGBB'); return; }
+  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));
+  applyTheme(hex);
+  // Salvar no Supabase se admin
+  if (STATE.condominioId) sb.from('condominios').update({ cor_tema: hex }).eq('id', STATE.condominioId);
+  toast('Cor personalizada aplicada!');
+}
+
+function hexInputChange(val) {
+  const hex = val.startsWith('#') ? val : '#'+val;
+  const pick = document.getElementById('custom-color-pick');
+  if (/^#[0-9A-Fa-f]{6}$/.test(hex) && pick) {
+    pick.value = hex;
+    previewCustomColor(hex);
+  }
+}
+
+// ===== ADMIN: PERMISSÕES =====
+function updatePerm(checkbox) {
+  toast('Permissão ' + (checkbox.checked ? 'concedida' : 'removida'));
+}
+
+// ===== ADMIN: NOVO ADMIN =====
+function salvarNovoAdmin() {
+  const nome = document.getElementById('nadm-nome').value.trim();
+  const email = document.getElementById('nadm-email').value.trim();
+  const senha = document.getElementById('nadm-senha').value;
+  if (!nome||!email||!senha) { toast('Preencha todos os campos'); return; }
+  if (senha.length<6) { toast('Senha deve ter pelo menos 6 caracteres'); return; }
+  const initials = nome.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+  const colors = ['var(--teal-50)','var(--blue-50)','var(--amber-50)','var(--coral-50)'];
+  const textColors = ['var(--teal-800)','var(--blue-800)','var(--amber-800)','var(--coral-800)'];
+  const ci = Math.floor(Math.random()*4);
+  const card = document.createElement('div');
+  card.className='card';
+  card.style.marginBottom='10px';
+  card.innerHTML=`
+    <div class="row-between">
+      <div class="row">
+        <div style="width:36px;height:36px;border-radius:50%;background:${colors[ci]};display:flex;align-items:center;justify-content:center;font-weight:700;color:${textColors[ci]};font-size:13px;">${initials}</div>
+        <div><p style="font-size:14px;font-weight:600;color:var(--text);">${nome}</p><p class="text-small">${email}</p></div>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-ghost" style="padding:5px 8px;" onclick="toast('Editar administrador')"><i class="ti ti-edit" style="font-size:14px;"></i></button>
+        <button class="btn btn-danger" style="padding:5px 8px;" onclick="confirmarExclusao('administrador')"><i class="ti ti-trash" style="font-size:14px;"></i></button>
+      </div>
+    </div>
+    <hr class="divider">
+    <p class="form-label" style="margin-bottom:8px;">Permissões</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" onchange="updatePerm(this)" style="width:auto;margin:0;"> Moradores</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" onchange="updatePerm(this)" style="width:auto;margin:0;"> Multas</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" onchange="updatePerm(this)" style="width:auto;margin:0;"> Veículos</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" onchange="updatePerm(this)" style="width:auto;margin:0;"> Regras</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" onchange="updatePerm(this)" style="width:auto;margin:0;"> Avisos</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" onchange="updatePerm(this)" style="width:auto;margin:0;"> Configurações</label>
+    </div>
+  `;
+  document.getElementById('admins-list').appendChild(card);
+  toast('Administrador ' + nome + ' criado!');
+  showScreen('admin-config');
+}
+// ===== ENCOMENDAS =====
+let _encFiltro = 'aguardando';
+
+async function carregarEncomendasMorador() {
+  if (!STATE.currentUser) return;
+  const { data: pendentes } = await sb.from('encomendas')
+    .select('*').eq('morador_id', STATE.currentUser.id).eq('status','aguardando').order('chegou_em', {ascending:false});
+  const { data: retiradas } = await sb.from('encomendas')
+    .select('*').eq('morador_id', STATE.currentUser.id).eq('status','retirado').order('retirado_em', {ascending:false}).limit(10);
+
+  // Atualizar badge no quick-card
+  const badge = document.getElementById('home-enc-badge');
+  const sub = document.getElementById('home-enc-sub');
+  const qtd = pendentes ? pendentes.length : 0;
+  if (badge) { badge.textContent = qtd; badge.style.display = qtd > 0 ? 'block' : 'none'; }
+  if (sub) sub.textContent = qtd > 0 ? `${qtd} aguardando retirada` : 'Nenhuma pendente';
+
+  const contPendentes = document.getElementById('enc-morador-pendentes');
+  const contRetiradas = document.getElementById('enc-morador-retiradas');
+  if (!contPendentes) return;
+
+  if (!pendentes || pendentes.length === 0) {
+    contPendentes.innerHTML = `<div style="text-align:center;padding:24px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);margin-bottom:14px;">
+      <i class="ti ti-package-off" style="font-size:32px;color:var(--hint);margin-bottom:8px;display:block;"></i>
+      <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhuma encomenda aguardando</p></div>`;
+  } else {
+    contPendentes.innerHTML = `<p class="section-title">Aguardando retirada (${qtd})</p>` + pendentes.map(e => `
+      <div class="card" style="margin-bottom:10px;border-left:3px solid var(--amber-600);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+          <span class="badge badge-amber">📦 Aguardando</span>
+          <span style="font-size:11px;color:var(--hint);">${formatarDataHora(e.chegou_em)}</span>
+        </div>
+        <p style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;">${e.remetente || 'Remetente não informado'}</p>
+        ${e.descricao ? `<p style="font-size:12px;color:var(--muted);">${e.descricao}</p>` : ''}
+        <p style="font-size:11px;color:var(--hint);margin-top:6px;"><i class="ti ti-map-pin" style="font-size:12px;vertical-align:-2px;"></i> Portaria</p>
+      </div>`).join('');
+  }
+
+  if (contRetiradas) {
+    if (!retiradas || retiradas.length === 0) {
+      contRetiradas.innerHTML = `<p style="font-size:13px;color:var(--hint);text-align:center;padding:16px;">Nenhuma encomenda retirada ainda.</p>`;
+    } else {
+      contRetiradas.innerHTML = retiradas.map(e => `
+        <div class="card" style="margin-bottom:8px;opacity:0.7;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span class="badge badge-green">✓ Retirada</span>
+            <span style="font-size:11px;color:var(--hint);">${formatarDataHora(e.retirado_em)}</span>
+          </div>
+          <p style="font-size:13px;font-weight:600;color:var(--text);">${e.remetente || 'Remetente não informado'}</p>
+          ${e.descricao ? `<p style="font-size:12px;color:var(--muted);">${e.descricao}</p>` : ''}
+        </div>`).join('');
+    }
+  }
+}
+
+async function carregarEncomendasAdmin(filtro) {
+  if (!STATE.condominioId) return;
+  _encFiltro = filtro || _encFiltro;
+  const lista = document.getElementById('enc-admin-lista');
+  if (!lista) return;
+  lista.innerHTML = `<p style="text-align:center;color:var(--hint);padding:24px;">Carregando...</p>`;
+
+  let query = sb.from('encomendas')
+    .select('*, morador:usuarios!encomendas_morador_id_fkey(nome,bloco,apartamento)')
+    .eq('condominio_id', STATE.condominioId).eq('status', _encFiltro)
+    .order('chegou_em', {ascending: _encFiltro === 'retirado' ? false : false});
+
+  const { data, error } = await query;
+  if (error || !data || data.length === 0) {
+    lista.innerHTML = `<div style="text-align:center;padding:32px;background:var(--card);border-radius:var(--radius-md);border:0.5px solid var(--border);">
+      <i class="ti ti-package-off" style="font-size:36px;color:var(--hint);margin-bottom:10px;display:block;"></i>
+      <p style="font-size:13px;font-weight:600;color:var(--muted);">Nenhuma encomenda ${_encFiltro === 'aguardando' ? 'aguardando' : 'retirada'}</p></div>`;
+    return;
+  }
+
+  lista.innerHTML = data.map(e => {
+    const morador = e.morador;
+    const nomeM = morador ? morador.nome : 'Morador não encontrado';
+    const localM = morador ? `Bloco ${morador.bloco || '?'} · Ap ${morador.apartamento || '?'}` : '';
+    if (_encFiltro === 'aguardando') {
+      return `<div class="card" style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+          <div>
+            <p style="font-size:14px;font-weight:700;color:var(--text);">${nomeM}</p>
+            <p style="font-size:12px;color:var(--muted);">${localM}</p>
+          </div>
+          <span class="badge badge-amber">Aguardando</span>
+        </div>
+        <p style="font-size:13px;color:var(--text);margin-bottom:2px;"><i class="ti ti-truck" style="font-size:13px;vertical-align:-2px;color:var(--muted);"></i> ${e.remetente || 'Não informado'}</p>
+        ${e.descricao ? `<p style="font-size:12px;color:var(--muted);">${e.descricao}</p>` : ''}
+        <p style="font-size:11px;color:var(--hint);margin:6px 0 10px;"><i class="ti ti-clock" style="font-size:12px;vertical-align:-2px;"></i> Chegou: ${formatarDataHora(e.chegou_em)}</p>
+        <button onclick="darBaixaEncomenda('${e.id}')" style="width:100%;background:var(--teal-600);color:#fff;border:none;border-radius:var(--radius-sm);padding:10px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+          <i class="ti ti-check" style="font-size:15px;"></i> Confirmar retirada
+        </button>
+      </div>`;
+    } else {
+      return `<div class="card" style="margin-bottom:8px;opacity:0.75;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+          <div>
+            <p style="font-size:13px;font-weight:700;color:var(--text);">${nomeM}</p>
+            <p style="font-size:12px;color:var(--muted);">${localM}</p>
+          </div>
+          <span class="badge badge-green">✓ Retirada</span>
+        </div>
+        <p style="font-size:12px;color:var(--muted);">${e.remetente || 'Não informado'}${e.descricao ? ' · ' + e.descricao : ''}</p>
+        <p style="font-size:11px;color:var(--hint);margin-top:6px;">Retirado em: ${formatarDataHora(e.retirado_em)}</p>
+      </div>`;
+    }
+  }).join('');
+}
+
+function filtrarEncomendas(status, btn) {
+  document.querySelectorAll('#enc-filter-aguardando,#enc-filter-retirado').forEach(b => {
+    b.style.background = 'var(--card)'; b.style.color = 'var(--muted)'; b.style.border = '0.5px solid var(--border)'; b.style.fontWeight = '500';
+  });
+  btn.style.background = 'var(--teal-600)'; btn.style.color = '#fff'; btn.style.border = 'none'; btn.style.fontWeight = '600';
+  carregarEncomendasAdmin(status);
+}
+
+async function carregarMoradoresSelect() {
+  if (!STATE.condominioId) return;
+  const { data } = await sb.from('usuarios').select('id,nome,bloco,apartamento').eq('condominio_id', STATE.condominioId).eq('role','morador').order('nome');
+  const sel = document.getElementById('enc-morador-select');
+  if (!sel || !data) return;
+  sel.innerHTML = '<option value="">Selecione o morador...</option>' +
+    data.map(u => `<option value="${u.id}" data-bloco="${u.bloco||''}" data-apto="${u.apartamento||''}">${u.nome} · Bl ${u.bloco||'?'} Ap ${u.apartamento||'?'}</option>`).join('');
+}
+
+async function registrarEncomenda() {
+  const moradorId = document.getElementById('enc-morador-select').value;
+  const remetente = document.getElementById('enc-remetente').value.trim();
+  const descricao = document.getElementById('enc-descricao').value.trim();
+  if (!moradorId) { toast('Selecione o morador'); return; }
+  if (!remetente) { toast('Informe o remetente'); return; }
+
+  const sel = document.getElementById('enc-morador-select');
+  const opt = sel.options[sel.selectedIndex];
+
+  const { error } = await sb.from('encomendas').insert({
+    condominio_id: STATE.condominioId,
+    morador_id: moradorId,
+    remetente, descricao,
+    bloco: opt.dataset.bloco,
+    apartamento: opt.dataset.apto,
+    status: 'aguardando',
+    chegou_em: new Date().toISOString()
+  });
+
+  if (error) { toast('Erro ao registrar: ' + error.message); return; }
+  toast('✅ Encomenda registrada!');
+  document.getElementById('enc-remetente').value = '';
+  document.getElementById('enc-descricao').value = '';
+  document.getElementById('enc-morador-select').value = '';
+  showScreen('admin-encomendas');
+  carregarEncomendasAdmin('aguardando');
+  carregarDashboardAdmin();
+}
+
+async function darBaixaEncomenda(id) {
+  const { error } = await sb.from('encomendas').update({
+    status: 'retirado',
+    retirado_em: new Date().toISOString(),
+    retirado_por: STATE.currentUser.id
+  }).eq('id', id);
+  if (error) { toast('Erro: ' + error.message); return; }
+  toast('✅ Baixa confirmada!');
+  carregarEncomendasAdmin('aguardando');
+  carregarDashboardAdmin();
+}
+
+function formatarDataHora(iso) {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  return d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+}
+
+async function reenviarEmail() {
+  const email = document.getElementById('verif-email-txt').textContent;
+  if (!email) { toast('E-mail não encontrado'); return; }
+  const { error } = await sb.auth.resend({ type: 'signup', email });
+  if (error) { toast('Erro ao reenviar: ' + error.message); return; }
+  toast('✅ E-mail reenviado!');
+}
+
+// Hook na showScreen para carregar dados automaticamente
+const _showScreenOriginal = showScreen;
+showScreen = function(id) {
+  _showScreenOriginal(id);
+  if (id === 'encomendas') carregarEncomendasMorador();
+  if (id === 'admin-encomendas') carregarEncomendasAdmin('aguardando');
+  if (id === 'admin-nova-encomenda') carregarMoradoresSelect();
+  if (id === 'admin-moradores') { carregarMoradoresAdmin(); }
+};
+</script>
+</body>
+</html>
